@@ -1,3 +1,6 @@
+// Firebase Configuration for Compat SDKs
+// This config is exposed to window so shared.js can access it
+
 window.firebaseConfig = {
   apiKey: "AIzaSyDA-zfgWh968yACbDnWqT4nWPn60KwpUEg",
   authDomain: "kidsvest-81051.firebaseapp.com",

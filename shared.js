@@ -62,17 +62,27 @@
 
   function initFirebase() {
     if (window.auth && window.db) return;
-    if (!window.firebase) {
-      throw new Error("Firebase SDK nu este incarcat.");
+    
+    // Wait for Firebase SDK to load
+    if (typeof firebase === 'undefined') {
+      throw new Error("Firebase SDK nu este incarcat. Asteapta sa se incarce scripturile...");
     }
+    
     if (!window.firebaseConfig) {
-      throw new Error("Configuratia Firebase lipseste.");
+      throw new Error("Configuratia Firebase lipseste. Verifica firebase-config.js");
     }
-    if (!firebase.apps.length) {
-      firebase.initializeApp(window.firebaseConfig);
+    
+    try {
+      if (!firebase.apps || firebase.apps.length === 0) {
+        firebase.initializeApp(window.firebaseConfig);
+      }
+      window.auth = firebase.auth();
+      window.db = firebase.firestore();
+      console.log("✅ Firebase initialized successfully");
+    } catch(err) {
+      console.error("❌ Firebase init error:", err);
+      throw err;
     }
-    window.auth = firebase.auth();
-    window.db = firebase.firestore();
   }
 
   function requireAuth(allowedTypes, onReady) {

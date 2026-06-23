@@ -189,12 +189,17 @@
 
   let selectedType = 'normal';
 
-  // redirect dacă deja logat
-  auth.onAuthStateChanged(async user => {
-    if (!user) return;
-    const snap = await db.collection('users').doc(user.uid).get();
-    if (snap.exists) redirect(snap.data().type);
-  });
+  // Ensure firebase is ready before using auth/db
+  if (typeof auth !== 'undefined' && typeof db !== 'undefined') {
+    // redirect dacă deja logat
+    auth.onAuthStateChanged(async user => {
+      if (!user) return;
+      const snap = await db.collection('users').doc(user.uid).get();
+      if (snap.exists) redirect(snap.data().type);
+    });
+  } else {
+    console.warn("⚠️ Firebase not initialized yet");
+  }
 
   function redirect(type) {
     const pages = { parinte:'parinte.html', copil:'copil.html', normal:'normal.html' };

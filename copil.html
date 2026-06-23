@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bănuții Mei — Contul Meu 🐷</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  :root {
+    --bg: #F0F4FF;
+    --border: #DDE3FF;
+  }
+  body { padding-bottom: 80px; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg,#4F46E5,#7C3AED,#DB2777);
+    padding: 28px; color: white; text-align: center;
+  }
+  .hero .avatar { font-size: 3rem; margin-bottom: 8px; }
+  .hero h2 { font-size: 1.4rem; font-weight: 900; }
+  .hero p  { font-size: .82rem; opacity: .8; font-weight: 600; margin-top: 4px; }
+  .coins-row {
+    display: flex; justify-content: center; gap: 10px; margin-top: 14px;
+  }
+  .coin-badge {
+    background: rgba(255,255,255,.18); border: 1.5px solid rgba(255,255,255,.3);
+    border-radius: 50px; padding: 6px 14px;
+    font-size: .82rem; font-weight: 800; display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ── MAIN ── */
+  .main { padding: 18px; max-width: 960px; margin: 0 auto; }
+
+  /* ── TIP ── */
+  .tip-box {
+    background: linear-gradient(135deg,#EDE9FE,#DDD6FE);
+    border: 2px solid #C4B5FD; border-radius: 14px;
+    padding: 14px 18px; margin-bottom: 18px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .tip-box .tip-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .tip-box .tip-text { font-size: .82rem; color: #4C1D95; font-weight: 700; line-height: 1.5; }
+  .tip-box .tip-text span { font-weight: 400; }
+
+  /* ── ALERT ── */
+  .alert-banner {
+    display: none; margin-bottom: 18px;
+    padding: 13px 18px; border-radius: 14px;
+    font-size: .88rem; font-weight: 700;
+    align-items: center; gap: 10px;
+  }
+  .alert-banner.show { display: flex; }
+  .alert-banner.warning { background: var(--yellow-l); color: var(--yellow); border: 2px solid #FDE68A; }
+  .alert-banner.danger  { background: var(--red-l);    color: var(--red);    border: 2px solid #FECACA; }
+  .alert-banner.good    { background: var(--green-l);  color: var(--green);  border: 2px solid #A7F3D0; }
+
+  /* ── SUMMARY ── */
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 12px; margin-bottom: 18px;
+  }
+  .sum-card {
+    background: var(--surface); border-radius: 16px;
+    border: 2px solid var(--border); box-shadow: var(--sh);
+    padding: 16px 14px; text-align: center;
+  }
+  .sum-card .sc-emoji { font-size: 1.5rem; margin-bottom: 6px; }
+  .sum-card .sc-label { font-size: .68rem; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+  .sum-card .sc-value { font-size: 1.4rem; font-weight: 900; margin-top: 4px; }
+  .sc-value.green  { color: var(--green); }
+  .sc-value.red    { color: var(--red); }
+  .sc-value.purple { color: var(--purple); }
+
+  /* ── PROGRESS ── */
+  .prog-card { margin-bottom: 18px; }
+  .prog-card .prog-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .prog-card .prog-title { font-size:.9rem; font-weight:800; }
+  .prog-card .prog-pct   { font-size:1.1rem; font-weight:900; color:var(--purple); }
+  .prog-track { background:var(--bg); border-radius:100px; height:18px; overflow:hidden; border:2px solid var(--border); }
+  .prog-fill  {
+    height:100%; border-radius:100px;
+    background: linear-gradient(90deg,#34D399,#059669);
+    transition: width .7s cubic-bezier(.4,0,.2,1);
+    position:relative; overflow:hidden;
+  }
+  .prog-fill::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent); animation:shimmer 2s infinite; }
+  @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .prog-fill.warn { background:linear-gradient(90deg,#FCD34D,#D97706); }
+  .prog-fill.over { background:linear-gradient(90deg,#F87171,#DC2626); }
+  .prog-labels { display:flex; justify-content:space-between; margin-top:7px; font-size:.72rem; color:var(--text3); font-weight:700; }
+
+  /* ── ACHIEVEMENTS ── */
+  .ach-grid { display:flex; flex-wrap:wrap; gap:8px; }
+  .ach-item {
+    background:var(--surface); border:2px solid var(--border);
+    border-radius:12px; padding:9px 13px;
+    display:flex; align-items:center; gap:7px;
+    font-size:.75rem; font-weight:700; color:var(--text3);
+  }
+  .ach-item.unlocked {
+    border-color:#FCD34D; background:#FFFBEB; color:#92400E;
+    box-shadow:0 2px 8px rgba(252,211,77,.3);
+  }
+  .ach-item .ach-icon { font-size:1.1rem; filter:grayscale(1); opacity:.4; }
+  .ach-item.unlocked .ach-icon { filter:none; opacity:1; }
+
+  /* ── COLUMNS ── */
+  .columns { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px; }
+
+  /* ── LIST ITEMS ── */
+  .entry-list { display:flex; flex-direction:column; gap:8px; }
+  .entry-item {
+    display:flex; align-items:center; gap:9px;
+    padding:11px 13px; background:var(--bg);
+    border-radius:12px; border:2px solid var(--border); transition:transform .15s;
+  }
+  .entry-item:hover { transform:translateY(-1px); box-shadow:var(--sh); }
+  .entry-icon  { font-size:1.1rem; flex-shrink:0; }
+  .entry-body  { flex:1; }
+  .entry-name  { font-size:.85rem; font-weight:800; }
+  .entry-sub   { font-size:.68rem; color:var(--text3); font-weight:600; }
+  .entry-amt   { font-size:.88rem; font-weight:900; }
+  .entry-amt.income  { color:var(--green); }
+  .entry-amt.expense { color:var(--red); }
+  .btn-del { background:none; border:none; cursor:pointer; font-size:.95rem; padding:3px; transition:transform .15s; }
+  .btn-del:hover { transform:scale(1.2); }
+  .empty-state { text-align:center; padding:24px 16px; color:var(--text3); }
+  .empty-icon  { font-size:2rem; margin-bottom:7px; }
+
+  /* ── BUDGET GRID ── */
+  .budget-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .bgt-item {
+    background:var(--bg); border:2px solid var(--border);
+    border-radius:12px; padding:11px 13px;
+    display:flex; align-items:center; gap:9px;
+  }
+  .bgt-item.over { border-color:var(--red); background:var(--red-l); }
+  .bgt-item.warn { border-color:var(--yellow); background:var(--yellow-l); }
+  .bgt-item.ok   { border-color:var(--green-mid); background:var(--green-l); }
+  .bgt-emoji { font-size:1rem; flex-shrink:0; }
+  .bgt-info  { flex:1; min-width:0; }
+  .bgt-name  { font-size:.76rem; font-weight:800; }
+  .bgt-spent { font-size:.66rem; color:var(--text3); font-weight:600; }
+  .mini-bar  { height:4px; border-radius:100px; background:var(--border); margin-top:4px; overflow:hidden; }
+  .mini-fill { height:100%; border-radius:100px; background:var(--green-mid); transition:width .5s; }
+  .bgt-input {
+    width:76px; text-align:right; border:2px solid var(--border); border-radius:8px;
+    padding:5px 8px; font-family:inherit; font-size:.8rem; font-weight:800;
+    background:var(--surface); outline:none; transition:border-color .2s; flex-shrink:0;
+  }
+  .bgt-input:focus { border-color:var(--purple); }
+
+  /* ── CHART ── */
+  .chart-bars { display:flex; gap:8px; align-items:flex-end; height:100px; padding:0 4px; }
+  .chart-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .chart-bar { width:100%; border-radius:8px 8px 0 0; min-height:4px; transition:height .5s; }
+  .chart-bar.inc { background:linear-gradient(180deg,#34D399,#059669); }
+  .chart-bar.exp { background:linear-gradient(180deg,#FB923C,#EA580C); }
+  .chart-lbl { font-size:.65rem; color:var(--text3); font-weight:700; }
+
+  /* ── MODAL ── */
+  .cat-pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cat-pill {
+    padding:6px 13px; border-radius:50px; font-size:.76rem; font-weight:800;
+    border:2px solid var(--border); background:var(--bg); cursor:pointer; transition:all .15s;
+  }
+  .cat-pill:hover { border-color:var(--purple); background:var(--purple-l); }
+  .cat-pill.active { border-color:var(--purple); background:var(--purple-l); color:var(--purple); }
+
+  /* SCAN */
+  .scan-zone {
+    border:3px dashed var(--border); border-radius:14px;
+    padding:20px; text-align:center; cursor:pointer; margin-bottom:14px;
+    background:var(--bg); transition:all .2s;
+  }
+  .scan-zone:hover,.scan-zone.dragging { border-color:var(--purple); background:var(--purple-l); }
+  .scan-icon-big { font-size:1.8rem; margin-bottom:5px; }
+  .scan-lbl { font-size:.85rem; font-weight:800; }
+  .scan-sub { font-size:.7rem; color:var(--text3); font-weight:600; margin-top:2px; }
+  #scanFileInput { display:none; }
+  .scan-preview { display:none; margin-bottom:12px; border-radius:12px; overflow:hidden; border:2px solid var(--border); position:relative; }
+  .scan-preview img { width:100%; max-height:130px; object-fit:cover; }
+  .scan-preview-rm {
+    position:absolute; top:6px; right:6px;
+    background:rgba(30,27,75,.7); color:white;
+    border:none; border-radius:50%; width:24px; height:24px;
+    font-size:.75rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .scan-loading { display:none; align-items:center; gap:10px; padding:11px 13px; background:var(--purple-l); border-radius:12px; margin-bottom:12px; font-size:.82rem; color:var(--purple); font-weight:800; border:2px solid #DDD6FE; }
+  .scan-loading.show { display:flex; }
+  .scan-result { display:none; align-items:center; gap:8px; padding:10px 13px; background:var(--green-l); border-radius:12px; margin-bottom:12px; font-size:.8rem; color:var(--green); font-weight:800; border:2px solid #A7F3D0; }
+  .scan-result.show { display:flex; }
+
+  /* ── LEARNING CTA ── */
+  .learning-cta {
+    background: linear-gradient(135deg,#FCD34D,#F59E0B);
+    border-radius:18px; padding:22px; text-align:center;
+    margin-bottom:18px; border:2px solid #FDE68A;
+    box-shadow:0 4px 16px rgba(245,158,11,.25);
+  }
+  .learning-cta h3 { font-size:1rem; font-weight:900; color:#78350F; margin-bottom:6px; }
+  .learning-cta p  { font-size:.78rem; color:#92400E; font-weight:600; margin-bottom:14px; }
+
+  @media(max-width:640px){
+    .summary-grid { grid-template-columns:1fr 1fr; }
+    .summary-grid .sum-card:last-child { grid-column:span 2; }
+    .columns { grid-template-columns:1fr; }
+    .budget-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <a class="topnav-brand" href="#">
+    <span class="pig">🐷</span>
+    <div><h1>Bănuții Mei</h1><p>Contul meu</p></div>
+  </a>
+  <div class="topnav-right">
+    <span class="topnav-user" id="navUser">...</span>
+    <button class="btn btn-ghost btn-sm" style="color:white;border-color:rgba(255,255,255,.3)" onclick="signOut()">Ieșire</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="avatar" id="heroAvatar">🧒</div>
+  <h2 id="heroName">Bună!</h2>
+  <p id="heroMonth">Iunie 2026</p>
+  <div class="coins-row">
+    <div class="coin-badge">🪙 <span id="coinsDisplay">0</span> monede</div>
+    <div class="coin-badge" id="parentBadge" style="display:none">👨‍👧 Sub supraveghere</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ALERT -->
+  <div class="alert-banner" id="alertBanner">
+    <span id="alertIcon">⚠️</span><span id="alertText"></span>
+  </div>
+
+  <!-- TIP -->
+  <div class="tip-box" id="tipBox">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text">Bine ai venit! <span>Adaugă veniturile și cheltuielile tale ca să vezi cum stai cu banii luna asta!</span></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-grid">
+    <div class="sum-card">
+      <div class="sc-emoji">💰</div>
+      <div class="sc-label">Am primit</div>
+      <div class="sc-value green" id="totalIncome">0 lei</div>
+    </div>
+    <div class="sum-card">
+      <div class="sc-emoji">🛍️</div>
+      <div class="sc-label">Am cheltuit</div>
+      <div class="sc-value red" id="totalExpense">0 lei</div>
+    </div>
+    <div class="sum-card">
+      <div class="sc-emoji">🏦</div>
+      <div class="sc-label">Îmi rămâne</div>
+      <div class="sc-value purple" id="totalBalance">0 lei</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="card prog-card">
+    <div class="prog-header">
+      <span class="prog-title">📊 Cât din buget am folosit?</span>
+      <span class="prog-pct" id="progPct">0%</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="progFill" style="width:0%"></div>
+    </div>
+    <div class="prog-labels">
+      <span id="progLeft">0 lei cheltuiți</span>
+      <span id="progRight">Setează limite mai jos ↓</span>
+    </div>
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">🏆 Realizările Mele</div>
+    <div class="ach-grid" id="achGrid"></div>
+  </div>
+
+  <!-- LEARNING CTA -->
+  <div class="learning-cta" id="learningCta">
+    <h3>📚 Zona de Învățare</h3>
+    <p>Învață să gestionezi banii cu lecții interactive și quiz-uri!</p>
+    <button class="btn btn-primary" onclick="goLearning()">Vreau să Învăț! →</button>
+  </div>
+
+  <!-- ENTRIES -->
+  <div class="columns">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span class="section-title" style="margin-bottom:0">💰 Venituri</span>
+        <button class="btn btn-green btn-sm" onclick="openModal('income')">＋ Adaugă</button>
+      </div>
+      <div class="entry-list" id="incomeList">
+        <div class="empty-state"><div class="empty-icon">🏦</div><p style="font-weight:700;font-size:.82rem">Niciun venit încă</p><small style="font-size:.7rem;color:var(--text3)">Bani de buzunar, cadouri...</small></div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span class="section-title" style="margin-bottom:0">🛍️ Cheltuieli</span>
+        <button class="btn btn-red btn-sm" onclick="openModal('expense')">＋ Adaugă</button>
+      </div>
+      <div class="entry-list" id="expenseList">
+        <div class="empty-state"><div class="empty-icon">🛒</div><p style="font-weight:700;font-size:.82rem">Nicio cheltuială</p><small style="font-size:.7rem;color:var(--text3)">Ce ai cumpărat azi?</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUDGET LIMITS -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">🎯 Limitele Mele</div>
+    <p style="font-size:.76rem;color:var(--text3);font-weight:600;margin-bottom:14px">Setează cât vrei să cheltui maxim pe fiecare categorie 👆</p>
+    <div class="budget-grid" id="budgetGrid"></div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">📈 Ultimele 6 Luni</div>
+    <div style="display:flex;gap:14px;margin-bottom:12px">
+      <span style="font-size:.72rem;color:var(--text3);font-weight:700;display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:var(--green-mid);display:inline-block"></span>Venituri</span>
+      <span style="font-size:.72rem;color:var(--text3);font-weight:700;display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:2px;background:var(--orange);display:inline-block"></span>Cheltuieli</span>
+    </div>
+    <div class="chart-bars" id="chartBars"></div>
+  </div>
+
+  <div style="text-align:center;color:var(--text3);font-size:.72rem;font-weight:700">🐷 Bănuții Mei · datele tale sunt salvate în siguranță 🔒</div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeMbg(event)">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <span style="font-size:1.5rem" id="modalIcon">💰</span>
+      <h2 id="modalTitle" style="margin-bottom:0">Adaugă</h2>
+    </div>
+
+    <div id="scanSection" style="display:none">
+      <div class="scan-preview" id="scanPreview">
+        <img id="scanImg" src="" alt="bon">
+        <button class="scan-preview-rm" onclick="clearScan()">✕</button>
+      </div>
+      <div class="scan-loading" id="scanLoading">
+        <div class="spinner" style="width:16px;height:16px;border-width:2.5px"></div>
+        <span id="scanTxt">Citesc bonul...</span>
+      </div>
+      <div class="scan-result" id="scanResult"><span>✅</span><span id="scanResultTxt"></span></div>
+      <div class="scan-zone" id="scanZone"
+        onclick="document.getElementById('scanFileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('dragging')"
+        ondragleave="this.classList.remove('dragging')"
+        ondrop="handleDrop(event)">
+        <div class="scan-icon-big">📷</div>
+        <div class="scan-lbl">Fotografiază bonul!</div>
+        <div class="scan-sub">Click sau trage poza · Gratuit</div>
+      </div>
+      <input type="file" id="scanFileInput" accept="image/*" onchange="handleScanFile(event)">
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 14px">
+        <div style="flex:1;height:2px;background:var(--border);border-radius:2px"></div>
+        <span style="font-size:.68rem;color:var(--text3);font-weight:800">SAU MANUAL</span>
+        <div style="flex:1;height:2px;background:var(--border);border-radius:2px"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">📝 Ce este?</label>
+      <input class="form-input" type="text" id="entryName" placeholder="ex: Bani de buzunar...">
+    </div>
+    <div style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1">
+        <label class="form-label">💵 Sumă (lei)</label>
+        <input class="form-input" type="number" id="entryAmount" placeholder="0" min="0">
+      </div>
+      <div class="form-group" style="flex:1">
+        <label class="form-label">📅 Data</label>
+        <input class="form-input" type="date" id="entryDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🏷️ Categorie</label>
+      <div class="cat-pills" id="catPills"></div>
+    </div>
+    <div class="form-error" id="entryErr"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Anulează</button>
+      <button class="btn" id="btnSave" style="flex:2" onclick="saveEntry()">Salvează! 🎉</button>
+    </div>
+  </div>
+</div>
+
+<div id="loadingOverlay"><div class="spinner"></div><p>Se încarcă...</p></div>
+<div id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
+<script>
+initFirebase();
+
+const CATS = {
+  income:  ['🎁 Cadou','👛 Buzunar','💼 Muncă','🏆 Premiu','💰 Economii','📦 Vânzare','Altele'],
+  expense: ['🍔 Mâncare','🚗 Transport','👗 Haine','🎮 Jocuri','🎬 Distracție','📚 Școală','🏥 Sănătate','💡 Utilități','Altele']
+};
+const TIPS = [
+  {i:'💡',t:'Știai că?',s:'Dacă economisești 10% din banii de buzunar în fiecare lună, într-un an poți strânge ceva special!'},
+  {i:'🎯',t:'Regula 50-30-20:',s:'50% nevoi, 30% distracție, 20% economii. Încearcă!'},
+  {i:'🤔',t:'Înainte să cumperi,',s:'întreabă-te: "Chiar am nevoie?" Așteptând 24h, de multe ori trece cheful!'},
+  {i:'🌟',t:'Super!',s:'Fiecare leu economisit azi e un pas spre ceva mai mare mâine!'},
+  {i:'🏦',t:'Trucul borcanelor:',s:'Pune banii în 3 borcane: Cheltuieli, Economii, Distracție. Funcționează!'},
+];
+const ACHS = [
+  {id:'first_income',  icon:'💰',label:'Primul venit!',    fn:(i,e)=>i.length>=1},
+  {id:'first_expense', icon:'🛒',label:'Prima cheltuială', fn:(i,e)=>e.length>=1},
+  {id:'saver',         icon:'🐷',label:'Economisitor',     fn:(i,e)=>{const ti=i.reduce((s,x)=>s+x.amount,0),te=e.reduce((s,x)=>s+x.amount,0);return ti>0&&te<ti*.7;}},
+  {id:'five_entries',  icon:'📋',label:'5 înregistrări',   fn:(i,e)=>(i.length+e.length)>=5},
+  {id:'budget_set',    icon:'🎯',label:'Planificator',     fn:()=>Object.values(loadBudgets()).some(v=>parseFloat(v)>0)},
+  {id:'scanned',       icon:'📷',label:'Scanat bon',       fn:()=>!!localStorage.getItem('pfin_scanned')},
+];
+
+let currentUser = null, userData = null;
+let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
+let modalType = 'income', selectedCat = '';
+
+requireAuth(['copil'], (user, data) => {
+  currentUser = user; userData = data;
+  document.getElementById('navUser').textContent = data.firstName || data.name || user.email;
+  document.getElementById('heroName').textContent = `Bună, ${data.firstName||data.name}! 👋`;
+  document.getElementById('heroMonth').textContent = `${MONTHS[currentMonth]} ${currentYear}`;
+  if (data.parentId) document.getElementById('parentBadge').style.display = 'flex';
+  // learning
+  if (data.learningUnlocked) document.getElementById('learningCta').innerHTML = `<h3>📚 Zona de Învățare</h3><p>Ai acces! Continuă să înveți!</p><a href="invatare.html" class="btn btn-primary">Deschide →</a>`;
+  render();
+  hideLoading();
+});
+
+// ── Storage keys (Firestore) ─────────────────────────────────────────────────
+function colKey() { return `transactions_${currentYear}_${currentMonth}`; }
+
+async function loadEntries(type) {
+  const snap = await db.collection('users').doc(currentUser.uid)
+    .collection(colKey()).where('type','==',type).orderBy('createdAt','desc').get();
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function addEntry(entry) {
+  await db.collection('users').doc(currentUser.uid).collection(colKey()).add({
+    ...entry, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+async function deleteEntry(id) {
+  await db.collection('users').doc(currentUser.uid).collection(colKey()).doc(id).delete();
+}
+
+function loadBudgets() { try{return JSON.parse(localStorage.getItem('pfin_budgets_'+currentUser?.uid))||{};}catch(e){return{};} }
+function saveBudgets(b) { localStorage.setItem('pfin_budgets_'+currentUser.uid, JSON.stringify(b)); }
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+async function render() {
+  showLoading('Se actualizează...');
+  const [incomes, expenses] = await Promise.all([loadEntries('income'), loadEntries('expense')]);
+  const budgets = loadBudgets();
+  const ti = incomes.reduce((s,e)=>s+e.amount,0);
+  const te = expenses.reduce((s,e)=>s+e.amount,0);
+  const bal = ti - te;
+
+  document.getElementById('totalIncome').textContent  = fmt(ti);
+  document.getElementById('totalExpense').textContent = fmt(te);
+  const bEl = document.getElementById('totalBalance');
+  bEl.textContent = fmt(Math.abs(bal));
+  bEl.className = 'sc-value '+(bal>=0?'purple':'red');
+
+  const limit = Object.values(budgets).reduce((s,v)=>s+(parseFloat(v)||0),0);
+  const pct = limit>0?Math.min((te/limit)*100,100):0;
+  const fill = document.getElementById('progFill');
+  fill.style.width = pct+'%';
+  fill.className = 'prog-fill'+(pct>=100?' over':pct>=80?' warn':'');
+  document.getElementById('progPct').textContent = Math.round(pct)+'%';
+  document.getElementById('progLeft').textContent = `${fmt(te)} cheltuiți`;
+  document.getElementById('progRight').textContent = limit>0?`Limită: ${fmt(limit)}`:'Setează limite mai jos ↓';
+
+  const coins = incomes.length*5 + expenses.length*3 + Object.values(budgets).filter(v=>parseFloat(v)>0).length*10;
+  document.getElementById('coinsDisplay').textContent = coins;
+
+  renderAlert(te, limit, ti, budgets, expenses);
+  renderTip(ti, te);
+  renderList('incomeList', incomes, 'income');
+  renderList('expenseList', expenses, 'expense');
+  renderBudgets(budgets, expenses);
+  renderAch(incomes, expenses);
+  renderChart();
+  hideLoading();
+}
+
+function renderTip(ti, te) {
+  const tip = ti===0&&te===0 ? TIPS[0] : (ti>0&&te<ti*.5 ? TIPS[3] : TIPS[Math.floor(Math.random()*TIPS.length)]);
+  document.querySelector('#tipBox .tip-icon').textContent = tip.i;
+  document.querySelector('#tipBox .tip-text').innerHTML = `${tip.t} <span>${tip.s}</span>`;
+}
+
+function renderAlert(te, limit, ti, budgets, expenses) {
+  const b=document.getElementById('alertBanner');
+  const catOver = CATS.expense.filter(cat=>{
+    const lim=parseFloat(budgets[cat])||0;
+    if(!lim) return false;
+    return expenses.filter(e=>e.category===cat).reduce((s,e)=>s+e.amount,0)>=lim;
+  });
+  if(catOver.length){
+    b.className='alert-banner show danger';
+    document.getElementById('alertIcon').textContent='🚨';
+    document.getElementById('alertText').textContent=`Ai depășit limita la: ${catOver.map(c=>c.replace(/^[^ ]+ /,'')).join(', ')}! 🛑`;
+  } else if(limit>0&&te>=limit*.8){
+    b.className='alert-banner show warning';
+    document.getElementById('alertIcon').textContent='⚠️';
+    const rem=limit-te;
+    document.getElementById('alertText').textContent=rem<=0?`Ai depășit bugetul de ${fmt(limit)}! 💸`:`Ai folosit ${Math.round(te/limit*100)}% din buget. Mai ai ${fmt(rem)}! 🤔`;
+  } else if(ti>0&&te>ti){
+    b.className='alert-banner show danger';
+    document.getElementById('alertIcon').textContent='😬';
+    document.getElementById('alertText').textContent=`Ai cheltuit mai mult decât ai câștigat cu ${fmt(te-ti)}! 💸`;
+  } else if(ti>0&&te<ti*.5){
+    b.className='alert-banner show good';
+    document.getElementById('alertIcon').textContent='🌟';
+    document.getElementById('alertText').textContent=`Super! Ai economisit ${fmt(ti-te)} luna asta! 🐷`;
+  } else {
+    b.className='alert-banner';
+  }
+}
+
+function renderList(id, entries, type) {
+  const el = document.getElementById(id);
+  if(!entries.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">${type==='income'?'🏦':'🛒'}</div><p style="font-size:.82rem;font-weight:700">${type==='income'?'Niciun venit încă':'Nicio cheltuială'}</p></div>`;
+    return;
+  }
+  el.innerHTML = entries.map(e=>`
+    <div class="entry-item">
+      <span class="entry-icon">${CAT_ICONS[e.category]||'📌'}</span>
+      <div class="entry-body">
+        <div class="entry-name">${e.name}</div>
+        <div class="entry-sub">${e.category||'Altele'} · ${e.date||''}</div>
+      </div>
+      <span class="entry-amt ${type}">${type==='income'?'+':'−'}${fmt(e.amount)}</span>
+      <button class="btn-del" onclick="doDelete('${e.id}')">🗑️</button>
+    </div>`).join('');
+}
+
+function renderBudgets(budgets, expenses) {
+  const cats = CATS.expense.filter(c=>c!=='Altele');
+  document.getElementById('budgetGrid').innerHTML = cats.map(cat=>{
+    const lim   = parseFloat(budgets[cat])||0;
+    const spent = expenses.filter(e=>e.category===cat).reduce((s,e)=>s+e.amount,0);
+    const pct   = lim>0?Math.min(spent/lim*100,100):0;
+    const st    = lim>0?(spent>=lim?'over':spent>=lim*.8?'warn':'ok'):'';
+    return `
+      <div class="bgt-item ${st}">
+        <span class="bgt-emoji">${CAT_ICONS[cat]||'📌'}</span>
+        <div class="bgt-info">
+          <div class="bgt-name">${cat.replace(/^[^ ]+ /,'')}</div>
+          <div class="bgt-spent">Cheltuit: ${fmt(spent)}${lim?' / '+fmt(lim):''}</div>
+          ${lim?`<div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:${pct>=100?'var(--red)':pct>=80?'var(--yellow)':'var(--green-mid)'}"></div></div>`:''}
+        </div>
+        <input class="bgt-input" type="number" placeholder="Max" value="${budgets[cat]||''}"
+          onchange="updateBudget('${cat}',this.value)" min="0">
+      </div>`;
+  }).join('');
+}
+
+function renderAch(incomes, expenses) {
+  document.getElementById('achGrid').innerHTML = ACHS.map(a=>{
+    const ok = a.fn(incomes,expenses);
+    return `<div class="ach-item ${ok?'unlocked':''}"><span class="ach-icon">${a.icon}</span><span>${a.label}</span></div>`;
+  }).join('');
+}
+
+function renderChart() {
+  const months=[];
+  for(let i=5;i>=0;i--){let m=currentMonth-i,y=currentYear;while(m<0){m+=12;y--;}months.push({m,y,l:MONTHS[m].slice(0,3)});}
+  // chart uses localStorage cache per month for speed
+  const bars = document.getElementById('chartBars');
+  bars.innerHTML = months.map(({m,y,l})=>{
+    const inc=parseFloat(localStorage.getItem(`chart_inc_${currentUser?.uid}_${y}_${m}`))||0;
+    const exp=parseFloat(localStorage.getItem(`chart_exp_${currentUser?.uid}_${y}_${m}`))||0;
+    return inc===0&&exp===0?`<div class="chart-bar-wrap"><div style="height:94px;display:flex;gap:3px;align-items:flex-end"><div class="chart-bar inc" style="width:11px;height:4px"></div><div class="chart-bar exp" style="width:11px;height:4px"></div></div><div class="chart-lbl">${l}</div></div>`:
+    (()=>{const mx=Math.max(inc,exp,1),iH=Math.round(inc/mx*90),eH=Math.round(exp/mx*90);return`<div class="chart-bar-wrap"><div style="height:94px;display:flex;gap:3px;align-items:flex-end"><div class="chart-bar inc" style="width:11px;height:${iH}px" title="${fmt(inc)}"></div><div class="chart-bar exp" style="width:11px;height:${eH}px" title="${fmt(exp)}"></div></div><div class="chart-lbl">${l}</div></div>`;})();
+  }).join('');
+}
+
+// ── CRUD ─────────────────────────────────────────────────────────────────────
+async function doDelete(id) {
+  if(!confirm('Ștergi această înregistrare?')) return;
+  showLoading(); await deleteEntry(id); await render();
+}
+function updateBudget(cat, val) {
+  const b=loadBudgets(); b[cat]=parseFloat(val)||0; saveBudgets(b); render();
+}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(type) {
+  modalType=type; selectedCat='';
+  document.getElementById('modalTitle').textContent=type==='income'?'Adaugă venit 💰':'Adaugă cheltuială 🛍️';
+  document.getElementById('modalIcon').textContent=type==='income'?'💰':'🛍️';
+  document.getElementById('entryName').value='';
+  document.getElementById('entryAmount').value='';
+  document.getElementById('entryDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('scanSection').style.display=type==='expense'?'block':'none';
+  if(type==='expense') loadTesseract();
+  clearScan();
+  const btn=document.getElementById('btnSave');
+  btn.className='btn '+(type==='income'?'btn-green':'btn-red');
+  document.getElementById('catPills').innerHTML=CATS[type].map(c=>`<span class="cat-pill" onclick="selCat(this,'${c}')">${c}</span>`).join('');
+  document.getElementById('modalOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('entryName').focus(),80);
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+function closeMbg(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+function selCat(el,cat) {
+  selectedCat=cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+async function saveEntry() {
+  const name=document.getElementById('entryName').value.trim();
+  const amount=parseFloat(document.getElementById('entryAmount').value);
+  const date=document.getElementById('entryDate').value;
+  const errEl=document.getElementById('entryErr');
+  if(!name||isNaN(amount)||amount<=0){errEl.textContent='Completează numele și suma!';errEl.classList.add('show');return;}
+  errEl.classList.remove('show');
+  showLoading('Salvez...');
+  await addEntry({name,amount,date,category:selectedCat||'Altele',type:modalType});
+  // update chart cache
+  const entries = await loadEntries(modalType);
+  const total = entries.reduce((s,e)=>s+e.amount,0);
+  localStorage.setItem(`chart_${modalType==='income'?'inc':'exp'}_${currentUser.uid}_${currentYear}_${currentMonth}`, total);
+  closeModal(); spawnConfetti(); await render();
+}
+
+// ── SCAN ─────────────────────────────────────────────────────────────────────
+function loadTesseract(){if(document.getElementById('tsScript'))return;const s=document.createElement('script');s.id='tsScript';s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';document.head.appendChild(s);}
+function handleDrop(e){e.preventDefault();document.getElementById('scanZone').classList.remove('dragging');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))procFile(f);}
+function handleScanFile(e){const f=e.target.files[0];if(f)procFile(f);e.target.value='';}
+function procFile(file){const r=new FileReader();r.onload=ev=>{const url=ev.target.result;document.getElementById('scanImg').src=url;document.getElementById('scanPreview').style.display='block';document.getElementById('scanZone').style.display='none';document.getElementById('scanResult').classList.remove('show');runOCR(url);};r.readAsDataURL(file);}
+function clearScan(){document.getElementById('scanPreview').style.display='none';document.getElementById('scanZone').style.display='block';document.getElementById('scanResult').classList.remove('show');document.getElementById('scanLoading').classList.remove('show');}
+async function runOCR(url){
+  const ld=document.getElementById('scanLoading'),lt=document.getElementById('scanTxt');
+  ld.classList.add('show');lt.textContent='Se încarcă OCR...';
+  try{
+    await new Promise((res,rej)=>{let t=0;const c=()=>{if(typeof Tesseract!=='undefined'){res();}else if(t++>60){rej(new Error('timeout'));}else{setTimeout(c,500);}};c();});
+    const res=await Tesseract.recognize(url,'ron+eng',{logger:m=>{if(m.status==='recognizing text')lt.textContent=`Analizez... ${Math.round(m.progress*100)}%`;}});
+    ld.classList.remove('show');
+    localStorage.setItem('pfin_scanned','1');
+    parseReceipt(res.data.text);
+  }catch(e){ld.classList.remove('show');alert('Nu am putut citi bonul 😕 Încearcă o poză mai clară!\n'+e.message);}
+}
+function parseReceipt(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  let amount=null;
+  for(const kw of[/total\s*de\s*plat[aă]/i,/de\s*plat[aă]/i,/total\s*general/i,/^total$/i]){
+    for(const line of lines){if(kw.test(line)){const n=exNum(line);if(n){amount=n;break;}const idx=lines.indexOf(line);if(idx+1<lines.length){const nn=exNum(lines[idx+1]);if(nn){amount=nn;break;}}}}
+    if(amount)break;
+  }
+  if(!amount){const ns=lines.map(l=>exNum(l)).filter(n=>n&&n>0);if(ns.length)amount=Math.max(...ns);}
+  let date=new Date().toISOString().split('T')[0];
+  for(const line of lines){const m=line.match(/(\d{2})[.\-\/](\d{2})[.\-\/](\d{4})/);if(m){try{const d=new Date(`${m[3]}-${m[2]}-${m[1]}`);if(!isNaN(d))date=`${m[3]}-${m[2]}-${m[1]}`;}catch(e){}break;}}
+  const stores=['Kaufland','Lidl','Mega Image','Penny','Carrefour','Profi','McDonald','KFC','OMV','Rompetrol','Farmacia','Sensiblu'];
+  let name='';const ft=lines.join(' ');
+  for(const s of stores){if(ft.toLowerCase().includes(s.toLowerCase())){name=s;break;}}
+  if(!name){for(const l of lines.slice(0,4)){if(l.length>3&&!/^\d/.test(l)&&!/^[*\-=]+$/.test(l)){name=l.replace(/[^a-zA-ZăâîșțĂÂÎȘȚ\s]/g,'').trim();if(name.length>2)break;name='';}}}
+  const catMap={'🍔 Mâncare':['kaufland','lidl','mega','penny','carrefour','profi','alimentar'],'🚗 Transport':['omv','rompetrol','mol','petrom','benzin','parcare'],'🏥 Sănătate':['farmaci','sensiblu','catena'],'🎮 Jocuri':['steam','game'],'🎬 Distracție':['cinema','bilet','parc']};
+  let cat='🍔 Mâncare';
+  for(const[c,ks]of Object.entries(catMap)){if(ks.some(k=>ft.toLowerCase().includes(k))){cat=c;break;}}
+  if(name)document.getElementById('entryName').value=name;
+  if(amount)document.getElementById('entryAmount').value=amount.toFixed(2);
+  document.getElementById('entryDate').value=date;
+  document.querySelectorAll('.cat-pill').forEach(p=>{if(p.textContent.trim()===cat)p.click();});
+  const rs=document.getElementById('scanResult');
+  document.getElementById('scanResultTxt').textContent=(amount?'Bon citit! ':'⚠️ Suma nu găsită. ')+[name,amount&&amount.toFixed(2)+' lei',cat].filter(Boolean).join(' · ');
+  rs.classList.add('show');
+}
+function exNum(str){const ms=str.match(/(\d{1,6}[.,]\d{2})/g);if(!ms)return null;return Math.max(...ms.map(m=>parseFloat(m.replace(',','.'))));}
+
+function goLearning() { window.location.href='invatare.html'; }
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('modalOverlay').classList.contains('show'))saveEntry();
+  if(e.key==='Escape')closeModal();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bănuții Mei — Intră în cont</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
+    background: linear-gradient(135deg,#EEF2FF 0%,#F5F3FF 50%,#FDF2F8 100%); }
+
+  .auth-wrap { width:100%; max-width:460px; }
+
+  .logo-block { text-align:center; margin-bottom:28px; }
+  .logo-block .pig { font-size:3.5rem; animation:bounce 2s ease-in-out infinite; display:block; }
+  .logo-block h1 { font-size:1.8rem; font-weight:900; color:var(--text); margin-top:8px; }
+  .logo-block p  { font-size:.85rem; color:var(--text3); font-weight:600; margin-top:4px; }
+
+  /* TYPE SELECTOR */
+  .type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px; }
+  .type-card {
+    background:var(--surface); border:2.5px solid var(--border); border-radius:var(--r);
+    padding:16px 10px; text-align:center; cursor:pointer; transition:all .2s;
+  }
+  .type-card:hover { border-color:var(--purple); background:var(--purple-l); transform:translateY(-2px); }
+  .type-card.active { border-color:var(--purple); background:var(--purple-l); box-shadow:0 0 0 3px rgba(79,70,229,.15); }
+  .type-card .tc-icon { font-size:1.8rem; margin-bottom:6px; }
+  .type-card .tc-name { font-size:.78rem; font-weight:900; color:var(--text); }
+  .type-card .tc-desc { font-size:.65rem; color:var(--text3); font-weight:600; margin-top:2px; }
+
+  /* AUTH CARD */
+  .auth-card { background:var(--surface); border-radius:22px; border:2px solid var(--border); box-shadow:var(--sh-lg); padding:28px; }
+  .auth-tabs  { display:flex; gap:6px; margin-bottom:22px; }
+  .auth-tab {
+    flex:1; padding:9px; border-radius:50px; border:2px solid var(--border);
+    font-family:inherit; font-size:.85rem; font-weight:800; cursor:pointer;
+    background:transparent; color:var(--text3); transition:all .2s;
+  }
+  .auth-tab.active { background:var(--purple); color:white; border-color:var(--purple); }
+
+  .auth-panel { display:none; }
+  .auth-panel.active { display:block; }
+
+  /* INVITE CODE display */
+  .code-display {
+    background:linear-gradient(135deg,#EDE9FE,#DDD6FE);
+    border:2px solid #C4B5FD; border-radius:14px;
+    padding:18px; text-align:center; margin:16px 0;
+  }
+  .code-display .code-label { font-size:.72rem; font-weight:800; color:#5B21B6; margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em; }
+  .code-display .code-value { font-size:2.2rem; font-weight:900; color:#4C1D95; letter-spacing:.18em; font-variant-numeric:tabular-nums; }
+  .code-display .code-sub   { font-size:.72rem; color:#6D28D9; margin-top:6px; font-weight:600; }
+
+  .divider { display:flex; align-items:center; gap:10px; margin:18px 0; }
+  .divider hr { flex:1; border:none; border-top:2px solid var(--border); }
+  .divider span { font-size:.72rem; color:var(--text3); font-weight:800; }
+
+  .forgot { font-size:.75rem; color:var(--text3); font-weight:700; cursor:pointer; text-align:right; margin-top:4px; }
+  .forgot:hover { color:var(--purple); }
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="logo-block">
+    <span class="pig">🐷</span>
+    <h1>Bănuții Mei</h1>
+    <p>Gestionează-ți banii cu ușurință</p>
+  </div>
+
+  <!-- TYPE SELECTOR -->
+  <div class="type-grid">
+    <div class="type-card active" data-type="normal" onclick="selectType('normal',this)">
+      <div class="tc-icon">👤</div>
+      <div class="tc-name">Normal</div>
+      <div class="tc-desc">Adult, fără copii</div>
+    </div>
+    <div class="type-card" data-type="parinte" onclick="selectType('parinte',this)">
+      <div class="tc-icon">👨‍👧</div>
+      <div class="tc-name">Părinte</div>
+      <div class="tc-desc">Monitorizez copiii</div>
+    </div>
+    <div class="type-card" data-type="copil" onclick="selectType('copil',this)">
+      <div class="tc-icon">🧒</div>
+      <div class="tc-name">Copil</div>
+      <div class="tc-desc">Am cod de la părinte</div>
+    </div>
+  </div>
+
+  <!-- AUTH CARD -->
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login',this)">Intră în cont</button>
+      <button class="auth-tab"        onclick="switchTab('register',this)">Cont nou</button>
+    </div>
+
+    <!-- ── LOGIN ── -->
+    <div class="auth-panel active" id="panel-login">
+      <div class="form-group">
+        <label class="form-label">📧 Email</label>
+        <input class="form-input" type="email" id="l-email" placeholder="email@exemplu.ro">
+      </div>
+      <div class="form-group">
+        <label class="form-label">🔑 Parolă</label>
+        <input class="form-input" type="password" id="l-pass" placeholder="parola ta">
+        <div class="forgot" onclick="resetPassword()">Am uitat parola</div>
+      </div>
+      <div class="form-error" id="l-err"></div>
+      <button class="btn btn-primary btn-block" style="margin-top:8px" onclick="doLogin()">Intră în cont →</button>
+    </div>
+
+    <!-- ── REGISTER ── -->
+    <div class="auth-panel" id="panel-register">
+
+      <!-- NORMAL fields -->
+      <div id="reg-normal">
+        <div class="form-group">
+          <label class="form-label">👤 Nume complet</label>
+          <input class="form-input" type="text" id="n-name" placeholder="Ion Popescu">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🎂 Vârsta</label>
+          <input class="form-input" type="number" id="n-age" placeholder="25" min="18" max="120">
+          <div class="form-hint">Trebuie să ai minim 18 ani</div>
+        </div>
+      </div>
+
+      <!-- PARINTE fields -->
+      <div id="reg-parinte" style="display:none">
+        <div class="form-group">
+          <label class="form-label">👤 Nume complet</label>
+          <input class="form-input" type="text" id="p-name" placeholder="Maria Ionescu">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🎂 Vârsta</label>
+          <input class="form-input" type="number" id="p-age" placeholder="38" min="18">
+        </div>
+        <div class="form-group">
+          <label class="form-label">👧 Câți copii vor folosi aplicația?</label>
+          <input class="form-input" type="number" id="p-kids" placeholder="2" min="1" max="10">
+        </div>
+      </div>
+
+      <!-- COPIL fields -->
+      <div id="reg-copil" style="display:none">
+        <div class="form-group">
+          <label class="form-label">👤 Prenume</label>
+          <input class="form-input" type="text" id="c-fname" placeholder="Andrei">
+        </div>
+        <div class="form-group">
+          <label class="form-label">👤 Nume</label>
+          <input class="form-input" type="text" id="c-lname" placeholder="Popescu">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🎟️ Codul de la Părinte</label>
+          <input class="form-input" type="text" id="c-code" placeholder="ex: KD7X2M" style="text-transform:uppercase;letter-spacing:.12em;font-size:1.1rem;">
+          <div class="form-hint">Cere codul de la părintele tău</div>
+        </div>
+      </div>
+
+      <!-- common: email + pass -->
+      <div class="form-group">
+        <label class="form-label">📧 Email</label>
+        <input class="form-input" type="email" id="r-email" placeholder="email@exemplu.ro">
+      </div>
+      <div class="form-group">
+        <label class="form-label">🔑 Parolă</label>
+        <input class="form-input" type="password" id="r-pass" placeholder="minim 6 caractere">
+        <div class="form-hint">Minim 6 caractere</div>
+      </div>
+      <div class="form-error" id="r-err"></div>
+      <button class="btn btn-primary btn-block" style="margin-top:8px" onclick="doRegister()">Creează cont →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading + Toast -->
+<div id="loadingOverlay"><div class="spinner"></div><p>Se procesează...</p></div>
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
+<script>
+  initFirebase();
+
+  let selectedType = 'normal';
+
+  // redirect dacă deja logat
+  auth.onAuthStateChanged(async user => {
+    if (!user) return;
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (snap.exists) redirect(snap.data().type);
+  });
+
+  function redirect(type) {
+    const pages = { parinte:'parinte.html', copil:'copil.html', normal:'normal.html' };
+    window.location.href = pages[type] || 'index.html';
+  }
+
+  function selectType(type, el) {
+    selectedType = type;
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    // show correct register fields
+    ['normal','parinte','copil'].forEach(t => {
+      document.getElementById('reg-'+t).style.display = (t===type)?'block':'none';
+    });
+  }
+
+  function switchTab(tab, el) {
+    document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.auth-panel').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-'+tab).classList.add('active');
+  }
+
+  // ── LOGIN ──────────────────────────────────────────────────────────────────
+  async function doLogin() {
+    const email = document.getElementById('l-email').value.trim();
+    const pass  = document.getElementById('l-pass').value;
+    const errEl = document.getElementById('l-err');
+    errEl.classList.remove('show');
+    if (!email || !pass) { errEl.textContent='Completează email și parolă!'; errEl.classList.add('show'); return; }
+    showLoading('Mă conectez...');
+    try {
+      const cred = await auth.signInWithEmailAndPassword(email, pass);
+      const snap = await db.collection('users').doc(cred.user.uid).get();
+      hideLoading();
+      if (snap.exists) redirect(snap.data().type);
+    } catch(e) {
+      hideLoading();
+      errEl.textContent = friendlyError(e.code);
+      errEl.classList.add('show');
+    }
+  }
+
+  // ── REGISTER ───────────────────────────────────────────────────────────────
+  async function doRegister() {
+    const email = document.getElementById('r-email').value.trim();
+    const pass  = document.getElementById('r-pass').value;
+    const errEl = document.getElementById('r-err');
+    errEl.classList.remove('show');
+
+    if (!email || pass.length < 6) {
+      errEl.textContent = 'Email valid și parolă de minim 6 caractere!';
+      errEl.classList.add('show'); return;
+    }
+
+    let extraData = {};
+
+    if (selectedType === 'normal') {
+      const name = document.getElementById('n-name').value.trim();
+      const age  = parseInt(document.getElementById('n-age').value);
+      if (!name || age < 18) { errEl.textContent='Nume complet și vârstă minim 18 ani!'; errEl.classList.add('show'); return; }
+      extraData = { name, age };
+    }
+
+    if (selectedType === 'parinte') {
+      const name = document.getElementById('p-name').value.trim();
+      const age  = parseInt(document.getElementById('p-age').value);
+      const kids = parseInt(document.getElementById('p-kids').value);
+      if (!name || age < 18 || !kids) { errEl.textContent='Completează toate câmpurile!'; errEl.classList.add('show'); return; }
+      extraData = { name, age, numberOfKids: kids };
+    }
+
+    if (selectedType === 'copil') {
+      const fname = document.getElementById('c-fname').value.trim();
+      const lname = document.getElementById('c-lname').value.trim();
+      const code  = document.getElementById('c-code').value.trim().toUpperCase();
+      if (!fname || !lname || code.length < 6) { errEl.textContent='Completează toate câmpurile + codul!'; errEl.classList.add('show'); return; }
+
+      // validate parent code
+      showLoading('Verific codul părintelui...');
+      const parentSnap = await db.collection('users').where('inviteCode','==',code).where('type','==','parinte').get();
+      if (parentSnap.empty) {
+        hideLoading();
+        errEl.textContent = 'Codul nu este valid! Cere codul corect de la părintele tău.';
+        errEl.classList.add('show'); return;
+      }
+      extraData = { firstName: fname, lastName: lname, name: fname+' '+lname, parentId: parentSnap.docs[0].id, parentCode: code };
+    }
+
+    showLoading('Creez contul...');
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+      const uid  = cred.user.uid;
+
+      const userData = {
+        uid, email, type: selectedType,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        learningUnlocked: false,
+        ...extraData
+      };
+
+      // generate invite code for parents
+      if (selectedType === 'parinte') {
+        userData.inviteCode = generateCode(6);
+        userData.children   = [];
+      }
+
+      await db.collection('users').doc(uid).set(userData);
+
+      // link child to parent
+      if (selectedType === 'copil' && extraData.parentId) {
+        await db.collection('users').doc(extraData.parentId).update({
+          children: firebase.firestore.FieldValue.arrayUnion(uid)
+        });
+      }
+
+      hideLoading();
+      spawnConfetti();
+
+      // show invite code for parent before redirect
+      if (selectedType === 'parinte') {
+        showInviteCode(userData.inviteCode, uid);
+      } else {
+        redirect(selectedType);
+      }
+    } catch(e) {
+      hideLoading();
+      errEl.textContent = friendlyError(e.code);
+      errEl.classList.add('show');
+    }
+  }
+
+  // ── SHOW INVITE CODE (parent) ─────────────────────────────────────────────
+  function showInviteCode(code, uid) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay show';
+    overlay.innerHTML = `
+      <div class="modal" style="text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:10px">🎉</div>
+        <h2>Contul tău a fost creat!</h2>
+        <p style="font-size:.85rem;color:var(--text3);font-weight:600;margin-bottom:4px">
+          Dă acest cod copiilor tăi ca să se conecteze la contul tău:
+        </p>
+        <div class="code-display">
+          <div class="code-label">Codul tău de invitație</div>
+          <div class="code-value">${code}</div>
+          <div class="code-sub">Îl găsești oricând în dashboard</div>
+        </div>
+        <p style="font-size:.78rem;color:var(--text3);font-weight:600;margin-bottom:20px">
+          Poți folosi același cod pentru toți copiii tăi.
+        </p>
+        <button class="btn btn-primary btn-block" onclick="window.location.href='parinte.html'">
+          Mergi la dashboard →
+        </button>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  // ── RESET PASSWORD ────────────────────────────────────────────────────────
+  async function resetPassword() {
+    const email = document.getElementById('l-email').value.trim();
+    if (!email) { showToast('Introdu mai întâi emailul! 📧'); return; }
+    try {
+      await auth.sendPasswordResetEmail(email);
+      showToast('Email de resetare trimis! Verifică inbox-ul 📬');
+    } catch(e) {
+      showToast('Email invalid sau inexistent ❌');
+    }
+  }
+
+  function friendlyError(code) {
+    const m = {
+      'auth/user-not-found':     'Nu există cont cu acest email.',
+      'auth/wrong-password':     'Parola este greșită.',
+      'auth/email-already-in-use':'Există deja un cont cu acest email.',
+      'auth/invalid-email':      'Email invalid.',
+      'auth/weak-password':      'Parola e prea slabă (minim 6 caractere).',
+      'auth/too-many-requests':  'Prea multe încercări. Încearcă mai târziu.',
+    };
+    return m[code] || 'A apărut o eroare. Încearcă din nou.';
+  }
+
+  // Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('panel-login').classList.contains('active')) doLogin();
+    else doRegister();
+  });
+</script>
+</body>
+</html>

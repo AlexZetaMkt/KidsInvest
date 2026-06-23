@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bănuții Mei — Dashboard Părinte</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  body { padding-bottom:80px; }
+
+  /* ── HERO ── */
+  .hero {
+    background:linear-gradient(135deg,#1E1B4B,#3730A3);
+    padding:28px 28px 32px; color:white;
+  }
+  .hero-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
+  .hero h2  { font-size:1.3rem; font-weight:900; }
+  .hero p   { font-size:.8rem; opacity:.7; font-weight:600; margin-top:3px; }
+  .invite-box {
+    background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.25);
+    border-radius:14px; padding:12px 16px; min-width:160px; text-align:center;
+  }
+  .invite-box .ib-label { font-size:.65rem; font-weight:800; opacity:.7; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+  .invite-box .ib-code  { font-size:1.5rem; font-weight:900; letter-spacing:.15em; }
+  .invite-box .ib-sub   { font-size:.62rem; opacity:.6; margin-top:4px; font-weight:600; }
+
+  /* hero stats row */
+  .hero-stats { display:flex; gap:12px; }
+  .hstat {
+    flex:1; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+    border-radius:12px; padding:12px; text-align:center;
+  }
+  .hstat .hs-val   { font-size:1.3rem; font-weight:900; }
+  .hstat .hs-label { font-size:.65rem; opacity:.65; font-weight:700; margin-top:3px; }
+
+  /* ── MAIN ── */
+  .main { padding:18px; max-width:1100px; margin:0 auto; }
+
+  /* ── TABS ── */
+  .tabs { display:flex; gap:8px; margin-bottom:20px; }
+  .tab {
+    padding:9px 20px; border-radius:50px; border:2px solid var(--border);
+    font-family:inherit; font-size:.84rem; font-weight:800; cursor:pointer;
+    background:transparent; color:var(--text3); transition:all .2s;
+  }
+  .tab.active { background:var(--purple); color:white; border-color:var(--purple); }
+
+  /* ── CHILDREN LIST ── */
+  .children-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-bottom:20px; }
+  .child-card {
+    background:var(--surface); border:2px solid var(--border); border-radius:18px;
+    padding:18px; box-shadow:var(--sh); cursor:pointer; transition:all .2s;
+  }
+  .child-card:hover { transform:translateY(-2px); box-shadow:var(--sh-lg); border-color:var(--purple); }
+  .child-card.selected { border-color:var(--purple); box-shadow:0 0 0 3px rgba(79,70,229,.15); }
+  .cc-top { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .cc-avatar { font-size:2rem; background:var(--purple-l); border-radius:50%; width:52px; height:52px; display:flex; align-items:center; justify-content:center; }
+  .cc-name   { font-size:1rem; font-weight:900; }
+  .cc-email  { font-size:.72rem; color:var(--text3); font-weight:600; }
+  .cc-stats  { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .cc-stat   { background:var(--bg); border-radius:10px; padding:8px; text-align:center; }
+  .cc-stat .csv { font-size:.95rem; font-weight:900; }
+  .cc-stat .csl { font-size:.62rem; color:var(--text3); font-weight:700; margin-top:2px; }
+  .cc-stat .csv.green  { color:var(--green); }
+  .cc-stat .csv.red    { color:var(--red); }
+  .cc-stat .csv.purple { color:var(--purple); }
+  .no-children {
+    text-align:center; padding:40px 20px; color:var(--text3);
+    background:var(--surface); border-radius:18px; border:2px dashed var(--border);
+  }
+  .no-children .nc-icon { font-size:2.5rem; margin-bottom:10px; }
+  .no-children p { font-size:.85rem; font-weight:700; }
+  .no-children small { font-size:.75rem; }
+
+  /* ── CHILD DETAIL ── */
+  .child-detail { display:none; }
+  .child-detail.show { display:block; }
+  .detail-header {
+    display:flex; align-items:center; gap:14px;
+    background:var(--surface); border:2px solid var(--border);
+    border-radius:18px; padding:18px; margin-bottom:16px; box-shadow:var(--sh);
+  }
+  .detail-avatar { font-size:2.2rem; background:var(--purple-l); border-radius:50%; width:58px; height:58px; display:flex; align-items:center; justify-content:center; }
+  .detail-info h3 { font-size:1.1rem; font-weight:900; }
+  .detail-info p  { font-size:.75rem; color:var(--text3); font-weight:600; }
+  .detail-stats { display:flex; gap:10px; flex-wrap:wrap; }
+  .dstat { background:var(--bg); border:2px solid var(--border); border-radius:12px; padding:10px 14px; text-align:center; min-width:90px; }
+  .dstat .dv { font-size:1rem; font-weight:900; }
+  .dstat .dl { font-size:.65rem; color:var(--text3); font-weight:700; margin-top:2px; }
+  .dstat .dv.green  { color:var(--green); }
+  .dstat .dv.red    { color:var(--red); }
+  .dstat .dv.purple { color:var(--purple); }
+
+  /* month nav */
+  .month-nav { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .month-nav button { background:none; border:2px solid var(--border); border-radius:50%; width:34px; height:34px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+  .month-nav button:hover { background:var(--purple-l); }
+  .month-nav .mn-label { font-size:.9rem; font-weight:800; color:var(--text); flex:1; text-align:center; }
+
+  /* entries */
+  .entry-list { display:flex; flex-direction:column; gap:8px; }
+  .entry-item {
+    display:flex; align-items:center; gap:9px;
+    padding:11px 14px; background:var(--bg);
+    border-radius:12px; border:2px solid var(--border);
+  }
+  .entry-icon { font-size:1.1rem; flex-shrink:0; }
+  .entry-body { flex:1; }
+  .entry-name { font-size:.85rem; font-weight:800; }
+  .entry-sub  { font-size:.68rem; color:var(--text3); font-weight:600; }
+  .entry-amt  { font-size:.9rem; font-weight:900; }
+  .entry-amt.income  { color:var(--green); }
+  .entry-amt.expense { color:var(--red); }
+  .empty-state { text-align:center; padding:22px; color:var(--text3); }
+  .empty-icon  { font-size:1.8rem; margin-bottom:6px; }
+
+  /* ── MY FINANCES (parent's own) ── */
+  .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+  .sum-card { background:var(--surface); border:2px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--sh); }
+  .sc-emoji { font-size:1.4rem; margin-bottom:6px; }
+  .sc-label { font-size:.68rem; font-weight:800; color:var(--text3); text-transform:uppercase; letter-spacing:.05em; }
+  .sc-value { font-size:1.4rem; font-weight:900; margin-top:4px; }
+  .sc-value.green  { color:var(--green); }
+  .sc-value.red    { color:var(--red); }
+  .sc-value.purple { color:var(--purple); }
+
+  /* prog bar */
+  .prog-card { margin-bottom:16px; }
+  .prog-header { display:flex; justify-content:space-between; margin-bottom:10px; }
+  .prog-title { font-size:.9rem; font-weight:800; }
+  .prog-pct   { font-size:1rem; font-weight:900; color:var(--purple); }
+  .prog-track { background:var(--bg); border-radius:100px; height:14px; overflow:hidden; border:2px solid var(--border); }
+  .prog-fill  { height:100%; border-radius:100px; background:linear-gradient(90deg,#34D399,#059669); transition:width .7s; }
+  .prog-fill.warn { background:linear-gradient(90deg,#FCD34D,#D97706); }
+  .prog-fill.over { background:linear-gradient(90deg,#F87171,#DC2626); }
+  .prog-labels { display:flex; justify-content:space-between; margin-top:7px; font-size:.72rem; color:var(--text3); font-weight:700; }
+
+  .columns { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+
+  /* budget */
+  .budget-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .bgt-item { background:var(--bg); border:2px solid var(--border); border-radius:12px; padding:11px 13px; display:flex; align-items:center; gap:9px; }
+  .bgt-item.over { border-color:var(--red); background:var(--red-l); }
+  .bgt-item.warn { border-color:var(--yellow); background:var(--yellow-l); }
+  .bgt-item.ok   { border-color:var(--green-mid); background:var(--green-l); }
+  .bgt-emoji { font-size:1rem; }
+  .bgt-info  { flex:1; }
+  .bgt-name  { font-size:.76rem; font-weight:800; }
+  .bgt-spent { font-size:.66rem; color:var(--text3); font-weight:600; }
+  .mini-bar  { height:4px; border-radius:100px; background:var(--border); margin-top:4px; overflow:hidden; }
+  .mini-fill { height:100%; border-radius:100px; background:var(--green-mid); }
+  .bgt-input { width:76px; text-align:right; border:2px solid var(--border); border-radius:8px; padding:5px 8px; font-family:inherit; font-size:.8rem; font-weight:800; background:var(--surface); outline:none; }
+  .bgt-input:focus { border-color:var(--purple); }
+
+  /* add entry */
+  .cat-pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .cat-pill { padding:6px 12px; border-radius:50px; font-size:.76rem; font-weight:800; border:2px solid var(--border); background:var(--bg); cursor:pointer; transition:all .15s; }
+  .cat-pill:hover { border-color:var(--purple); }
+  .cat-pill.active { border-color:var(--purple); background:var(--purple-l); color:var(--purple); }
+
+  @media(max-width:640px){
+    .hero-stats { flex-wrap:wrap; }
+    .summary-grid { grid-template-columns:1fr 1fr; }
+    .summary-grid .sum-card:last-child { grid-column:span 2; }
+    .columns { grid-template-columns:1fr; }
+    .budget-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="topnav-brand" href="#">
+    <span class="pig">🐷</span>
+    <div><h1>Bănuții Mei</h1><p>Dashboard Părinte</p></div>
+  </a>
+  <div class="topnav-right">
+    <span class="topnav-user" id="navUser">...</span>
+    <button class="btn btn-ghost btn-sm" style="color:white;border-color:rgba(255,255,255,.3)" onclick="signOut()">Ieșire</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-top">
+    <div>
+      <h2 id="heroName">Bună ziua!</h2>
+      <p id="heroSub">Dashboard Părinte · <span id="heroMonth"></span></p>
+    </div>
+    <div class="invite-box">
+      <div class="ib-label">Codul Tău</div>
+      <div class="ib-code" id="inviteCode">------</div>
+      <div class="ib-sub">Dă-l copiilor tăi</div>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hs-val" id="heroChildren">0</div><div class="hs-label">Copii conectați</div></div>
+    <div class="hstat"><div class="hs-val" id="heroTotalInc">0 lei</div><div class="hs-label">Venituri proprii</div></div>
+    <div class="hstat"><div class="hs-val" id="heroTotalExp">0 lei</div><div class="hs-label">Cheltuieli proprii</div></div>
+    <div class="hstat"><div class="hs-val" id="heroBal">0 lei</div><div class="hs-label">Sold propriu</div></div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('children',this)">👧 Copiii Mei</button>
+    <button class="tab"        onclick="switchTab('myfinances',this)">💼 Finanțele Mele</button>
+  </div>
+
+  <!-- ── TAB: CHILDREN ── -->
+  <div id="tab-children">
+    <p class="section-title">Selectează un copil pentru a vedea detalii</p>
+    <div class="children-grid" id="childrenGrid">
+      <div class="no-children">
+        <div class="nc-icon">👧</div>
+        <p>Niciun copil conectat încă</p>
+        <small>Dă-le codul tău de invitație: <strong id="noChildCode">---</strong></small>
+      </div>
+    </div>
+
+    <!-- CHILD DETAIL -->
+    <div class="child-detail" id="childDetail">
+      <div class="detail-header">
+        <div class="detail-avatar">🧒</div>
+        <div class="detail-info" style="flex:1">
+          <h3 id="detailName">-</h3>
+          <p id="detailEmail">-</p>
+        </div>
+        <div class="detail-stats" id="detailStats"></div>
+      </div>
+
+      <div class="month-nav">
+        <button onclick="changeChildMonth(-1)">←</button>
+        <span class="mn-label" id="childMonthLabel">-</span>
+        <button onclick="changeChildMonth(1)">→</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+        <div class="card">
+          <p class="section-title" style="margin-bottom:12px">💰 Venituri</p>
+          <div class="entry-list" id="childIncomeList"><div class="empty-state"><div class="empty-icon">🏦</div><p style="font-size:.82rem;font-weight:700">Niciun venit</p></div></div>
+        </div>
+        <div class="card">
+          <p class="section-title" style="margin-bottom:12px">🛍️ Cheltuieli</p>
+          <div class="entry-list" id="childExpenseList"><div class="empty-state"><div class="empty-icon">🛒</div><p style="font-size:.82rem;font-weight:700">Nicio cheltuială</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: MY FINANCES ── -->
+  <div id="tab-myfinances" style="display:none">
+    <div class="month-nav" style="margin-bottom:16px">
+      <button onclick="changeMyMonth(-1)">←</button>
+      <span class="mn-label" id="myMonthLabel">-</span>
+      <button onclick="changeMyMonth(1)">→</button>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sc-emoji">💰</div><div class="sc-label">Venituri</div><div class="sc-value green" id="myTotalInc">0 lei</div></div>
+      <div class="sum-card"><div class="sc-emoji">💸</div><div class="sc-label">Cheltuieli</div><div class="sc-value red" id="myTotalExp">0 lei</div></div>
+      <div class="sum-card"><div class="sc-emoji">🏦</div><div class="sc-label">Sold</div><div class="sc-value purple" id="myBalance">0 lei</div></div>
+    </div>
+
+    <div class="card prog-card">
+      <div class="prog-header"><span class="prog-title">📊 Buget utilizat</span><span class="prog-pct" id="myProgPct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="myProgFill" style="width:0%"></div></div>
+      <div class="prog-labels"><span id="myProgLeft">0 lei cheltuiți</span><span id="myProgRight">Setează limite →</span></div>
+    </div>
+
+    <div class="columns">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span class="section-title" style="margin-bottom:0">💰 Venituri</span>
+          <button class="btn btn-green btn-sm" onclick="openModal('income')">＋ Adaugă</button>
+        </div>
+        <div class="entry-list" id="myIncomeList"><div class="empty-state"><div class="empty-icon">🏦</div><p style="font-size:.82rem;font-weight:700">Niciun venit</p></div></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span class="section-title" style="margin-bottom:0">💸 Cheltuieli</span>
+          <button class="btn btn-red btn-sm" onclick="openModal('expense')">＋ Adaugă</button>
+        </div>
+        <div class="entry-list" id="myExpenseList"><div class="empty-state"><div class="empty-icon">🛒</div><p style="font-size:.82rem;font-weight:700">Nicio cheltuială</p></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title">🎯 Limite Buget</div>
+      <div class="budget-grid" id="myBudgetGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL (my finances) -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeMbg(event)">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <span style="font-size:1.4rem" id="modalIcon">💰</span>
+      <h2 id="modalTitle" style="margin-bottom:0">Adaugă</h2>
+    </div>
+    <div class="form-group"><label class="form-label">📝 Descriere</label><input class="form-input" type="text" id="entryName" placeholder="ex: Salariu, Chirie..."></div>
+    <div style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label class="form-label">💵 Sumă (lei)</label><input class="form-input" type="number" id="entryAmount" placeholder="0" min="0"></div>
+      <div class="form-group" style="flex:1"><label class="form-label">📅 Data</label><input class="form-input" type="date" id="entryDate"></div>
+    </div>
+    <div class="form-group"><label class="form-label">🏷️ Categorie</label><div class="cat-pills" id="catPills"></div></div>
+    <div class="form-error" id="entryErr"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Anulează</button>
+      <button class="btn" id="btnSave" style="flex:2" onclick="saveEntry()">Salvează</button>
+    </div>
+  </div>
+</div>
+
+<div id="loadingOverlay"><div class="spinner"></div><p>Se încarcă...</p></div>
+<div id="toast"></div>
+
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="shared.js"></script>
+<script>
+initFirebase();
+
+const CATS = {
+  income:  ['💼 Muncă','🏠 Chirie primită','📦 Vânzare','💰 Economii','🎁 Cadou','📈 Investiții','Altele'],
+  expense: ['🛒 Mâncare','🚗 Transport','💡 Utilități','👗 Haine','🎮 Divertisment','🏥 Sănătate','📚 Educație','🏠 Chirie','🍽️ Restaurant','Altele']
+};
+
+let currentUser=null, userData=null;
+let myMonth=new Date().getMonth(), myYear=new Date().getFullYear();
+let childMonth=new Date().getMonth(), childYear=new Date().getFullYear();
+let selectedChildId=null, selectedCat='', modalType='income';
+let currentTab='children';
+
+requireAuth(['parinte'],(user,data)=>{
+  currentUser=user; userData=data;
+  document.getElementById('navUser').textContent=data.name||user.email;
+  document.getElementById('heroName').textContent=`Bună, ${data.name||''}!`;
+  document.getElementById('heroMonth').textContent=`${MONTHS[myMonth]} ${myYear}`;
+  document.getElementById('myMonthLabel').textContent=`${MONTHS[myMonth]} ${myYear}`;
+  document.getElementById('inviteCode').textContent=data.inviteCode||'---';
+  document.getElementById('noChildCode').textContent=data.inviteCode||'---';
+  loadDashboard();
+  hideLoading();
+});
+
+async function loadDashboard() {
+  showLoading();
+  await Promise.all([loadChildren(), loadMyFinances()]);
+  hideLoading();
+}
+
+// ── CHILDREN ─────────────────────────────────────────────────────────────────
+async function loadChildren() {
+  const kids=userData.children||[];
+  document.getElementById('heroChildren').textContent=kids.length;
+  if(!kids.length){ document.getElementById('childrenGrid').innerHTML=`<div class="no-children"><div class="nc-icon">👧</div><p>Niciun copil conectat încă</p><small>Dă-le codul: <strong>${userData.inviteCode||'---'}</strong></small></div>`; return; }
+
+  const snaps=await Promise.all(kids.map(id=>db.collection('users').doc(id).get()));
+  const children=snaps.filter(s=>s.exists).map(s=>({id:s.id,...s.data()}));
+
+  // fetch this month stats for each child
+  const withStats=await Promise.all(children.map(async child=>{
+    const col=`transactions_${myYear}_${myMonth}`;
+    const [incSnap,expSnap]=await Promise.all([
+      db.collection('users').doc(child.id).collection(col).where('type','==','income').get(),
+      db.collection('users').doc(child.id).collection(col).where('type','==','expense').get(),
+    ]);
+    const inc=incSnap.docs.reduce((s,d)=>s+d.data().amount,0);
+    const exp=expSnap.docs.reduce((s,d)=>s+d.data().amount,0);
+    return {...child,inc,exp,bal:inc-exp};
+  }));
+
+  document.getElementById('childrenGrid').innerHTML=withStats.map(c=>`
+    <div class="child-card ${selectedChildId===c.id?'selected':''}" onclick="selectChild('${c.id}')">
+      <div class="cc-top">
+        <div class="cc-avatar">🧒</div>
+        <div>
+          <div class="cc-name">${c.firstName||c.name||'Copil'}</div>
+          <div class="cc-email">${c.email}</div>
+        </div>
+      </div>
+      <div class="cc-stats">
+        <div class="cc-stat"><div class="csv green">+${fmt(c.inc)}</div><div class="csl">Venituri</div></div>
+        <div class="cc-stat"><div class="csv red">-${fmt(c.exp)}</div><div class="csl">Cheltuieli</div></div>
+        <div class="cc-stat"><div class="csv ${c.bal>=0?'purple':'red'}">${fmt(Math.abs(c.bal))}</div><div class="csl">${c.bal>=0?'Economii':'Deficit'}</div></div>
+      </div>
+    </div>`).join('');
+
+  if(selectedChildId) loadChildDetail(selectedChildId);
+}
+
+async function selectChild(id) {
+  selectedChildId=id;
+  childMonth=myMonth; childYear=myYear;
+  document.querySelectorAll('.child-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  await loadChildDetail(id);
+}
+
+async function loadChildDetail(id) {
+  showLoading('Se încarcă datele copilului...');
+  const snap=await db.collection('users').doc(id).get();
+  if(!snap.exists){hideLoading();return;}
+  const child={id:snap.id,...snap.data()};
+  const col=`transactions_${childYear}_${childMonth}`;
+  const [incSnap,expSnap]=await Promise.all([
+    db.collection('users').doc(id).collection(col).where('type','==','income').orderBy('createdAt','desc').get(),
+    db.collection('users').doc(id).collection(col).where('type','==','expense').orderBy('createdAt','desc').get(),
+  ]);
+  const incomes =incSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const expenses=expSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const ti=incomes.reduce((s,e)=>s+e.amount,0);
+  const te=expenses.reduce((s,e)=>s+e.amount,0);
+  const bal=ti-te;
+
+  document.getElementById('detailName').textContent=child.firstName||child.name||'Copil';
+  document.getElementById('detailEmail').textContent=child.email;
+  document.getElementById('childMonthLabel').textContent=`${MONTHS[childMonth]} ${childYear}`;
+  document.getElementById('detailStats').innerHTML=`
+    <div class="dstat"><div class="dv green">+${fmt(ti)}</div><div class="dl">Venituri</div></div>
+    <div class="dstat"><div class="dv red">-${fmt(te)}</div><div class="dl">Cheltuieli</div></div>
+    <div class="dstat"><div class="dv ${bal>=0?'purple':'red'}">${fmt(Math.abs(bal))}</div><div class="dl">${bal>=0?'Economii':'Deficit'}</div></div>`;
+
+  renderEntryList('childIncomeList', incomes, 'income', false);
+  renderEntryList('childExpenseList', expenses, 'expense', false);
+  document.getElementById('childDetail').classList.add('show');
+  hideLoading();
+}
+
+function changeChildMonth(dir) {
+  childMonth+=dir;
+  if(childMonth<0){childMonth=11;childYear--;}
+  if(childMonth>11){childMonth=0;childYear++;}
+  if(selectedChildId) loadChildDetail(selectedChildId);
+}
+
+// ── MY FINANCES ───────────────────────────────────────────────────────────────
+async function loadMyFinances() {
+  const col=`transactions_${myYear}_${myMonth}`;
+  const [incSnap,expSnap]=await Promise.all([
+    db.collection('users').doc(currentUser.uid).collection(col).where('type','==','income').orderBy('createdAt','desc').get(),
+    db.collection('users').doc(currentUser.uid).collection(col).where('type','==','expense').orderBy('createdAt','desc').get(),
+  ]);
+  const incomes=incSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const expenses=expSnap.docs.map(d=>({id:d.id,...d.data()}));
+  const ti=incomes.reduce((s,e)=>s+e.amount,0);
+  const te=expenses.reduce((s,e)=>s+e.amount,0);
+  const bal=ti-te;
+  const budgets=loadBudgets();
+  const limit=Object.values(budgets).reduce((s,v)=>s+(parseFloat(v)||0),0);
+  const pct=limit>0?Math.min(te/limit*100,100):0;
+
+  document.getElementById('myTotalInc').textContent=fmt(ti);
+  document.getElementById('myTotalExp').textContent=fmt(te);
+  document.getElementById('myBalance').textContent=fmt(Math.abs(bal));
+  document.getElementById('myBalance').className='sc-value '+(bal>=0?'purple':'red');
+  document.getElementById('heroTotalInc').textContent=fmt(ti);
+  document.getElementById('heroTotalExp').textContent=fmt(te);
+  document.getElementById('heroBal').textContent=fmt(Math.abs(bal));
+
+  const fill=document.getElementById('myProgFill');
+  fill.style.width=pct+'%';
+  fill.className='prog-fill'+(pct>=100?' over':pct>=80?' warn':'');
+  document.getElementById('myProgPct').textContent=Math.round(pct)+'%';
+  document.getElementById('myProgLeft').textContent=`${fmt(te)} cheltuiți`;
+  document.getElementById('myProgRight').textContent=limit>0?`Limită: ${fmt(limit)}`:'Setează limite →';
+
+  renderEntryList('myIncomeList', incomes, 'income', true);
+  renderEntryList('myExpenseList', expenses, 'expense', true);
+  renderBudgets(budgets, expenses);
+}
+
+function loadBudgets(){try{return JSON.parse(localStorage.getItem('pfin_budgets_'+currentUser?.uid))||{};}catch(e){return{};}}
+function saveBudgets(b){localStorage.setItem('pfin_budgets_'+currentUser.uid,JSON.stringify(b));}
+
+function renderEntryList(id, entries, type, deletable) {
+  const el=document.getElementById(id);
+  if(!entries.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">${type==='income'?'🏦':'🛒'}</div><p style="font-size:.8rem;font-weight:700">Nicio înregistrare</p></div>`;return;}
+  el.innerHTML=entries.map(e=>`
+    <div class="entry-item">
+      <span class="entry-icon">${CAT_ICONS[e.category]||'📌'}</span>
+      <div class="entry-body">
+        <div class="entry-name">${e.name}</div>
+        <div class="entry-sub">${e.category||'Altele'} · ${e.date||''}</div>
+      </div>
+      <span class="entry-amt ${type}">${type==='income'?'+':'−'}${fmt(e.amount)}</span>
+      ${deletable?`<button style="background:none;border:none;cursor:pointer;font-size:.9rem" onclick="doDelete('${e.id}')">🗑️</button>`:''}
+    </div>`).join('');
+}
+
+function renderBudgets(budgets, expenses) {
+  const cats=CATS.expense.filter(c=>c!=='Altele');
+  document.getElementById('myBudgetGrid').innerHTML=cats.map(cat=>{
+    const lim=parseFloat(budgets[cat])||0;
+    const spent=expenses.filter(e=>e.category===cat).reduce((s,e)=>s+e.amount,0);
+    const pct=lim>0?Math.min(spent/lim*100,100):0;
+    const st=lim>0?(spent>=lim?'over':spent>=lim*.8?'warn':'ok'):'';
+    return `
+      <div class="bgt-item ${st}">
+        <span class="bgt-emoji">${CAT_ICONS[cat]||'📌'}</span>
+        <div class="bgt-info">
+          <div class="bgt-name">${cat.replace(/^[^ ]+ /,'')}</div>
+          <div class="bgt-spent">Cheltuit: ${fmt(spent)}${lim?' / '+fmt(lim):''}</div>
+          ${lim?`<div class="mini-bar"><div class="mini-fill" style="width:${pct}%;background:${pct>=100?'var(--red)':pct>=80?'var(--yellow)':'var(--green-mid)'}"></div></div>`:''}
+        </div>
+        <input class="bgt-input" type="number" placeholder="Max" value="${budgets[cat]||''}" onchange="updateBudget('${cat}',this.value)" min="0">
+      </div>`;
+  }).join('');
+}
+
+function updateBudget(cat,val){const b=loadBudgets();b[cat]=parseFloat(val)||0;saveBudgets(b);loadMyFinances();}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab, el) {
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-children').style.display=tab==='children'?'block':'none';
+  document.getElementById('tab-myfinances').style.display=tab==='myfinances'?'block':'none';
+}
+
+function changeMyMonth(dir) {
+  myMonth+=dir;
+  if(myMonth<0){myMonth=11;myYear--;}
+  if(myMonth>11){myMonth=0;myYear++;}
+  document.getElementById('myMonthLabel').textContent=`${MONTHS[myMonth]} ${myYear}`;
+  showLoading(); loadMyFinances().then(hideLoading);
+}
+
+// ── MODAL (my finances) ───────────────────────────────────────────────────────
+function openModal(type) {
+  modalType=type; selectedCat='';
+  document.getElementById('modalTitle').textContent=type==='income'?'Adaugă venit':'Adaugă cheltuială';
+  document.getElementById('modalIcon').textContent=type==='income'?'💰':'💸';
+  document.getElementById('entryName').value='';
+  document.getElementById('entryAmount').value='';
+  document.getElementById('entryDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('btnSave').className='btn '+(type==='income'?'btn-green':'btn-red');
+  document.getElementById('catPills').innerHTML=CATS[type].map(c=>`<span class="cat-pill" onclick="selCat(this,'${c}')">${c}</span>`).join('');
+  document.getElementById('modalOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('entryName').focus(),80);
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+function closeMbg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function selCat(el,cat){selectedCat=cat;document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');}
+
+async function saveEntry() {
+  const name=document.getElementById('entryName').value.trim();
+  const amount=parseFloat(document.getElementById('entryAmount').value);
+  const date=document.getElementById('entryDate').value;
+  if(!name||isNaN(amount)||amount<=0){document.getElementById('entryErr').textContent='Completează toate câmpurile!';document.getElementById('entryErr').classList.add('show');return;}
+  document.getElementById('entryErr').classList.remove('show');
+  showLoading('Salvez...');
+  await db.collection('users').doc(currentUser.uid).collection(`transactions_${myYear}_${myMonth}`).add({
+    name,amount,date,category:selectedCat||'Altele',type:modalType,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  closeModal(); await loadMyFinances(); hideLoading(); showToast('Salvat! ✅');
+}
+
+async function doDelete(id) {
+  if(!confirm('Ștergi această înregistrare?'))return;
+  showLoading();
+  await db.collection('users').doc(currentUser.uid).collection(`transactions_${myYear}_${myMonth}`).doc(id).delete();
+  await loadMyFinances(); hideLoading();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('modalOverlay').classList.contains('show'))saveEntry();
+  if(e.key==='Escape')closeModal();
+});
+</script>
+</body>
+</html>

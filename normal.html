@@ -336,7 +336,7 @@ requireAuth(['normal'],(user,data)=>{
   document.getElementById('navUser').textContent=data.name||user.email;
   document.getElementById('heroName').textContent=`Bună, ${data.name?.split(' ')[0]||''}! 👋`;
   updateMonthLabel();
-  if(data.learningUnlocked){
+  if(true){
     document.getElementById('learningCta').innerHTML=`<div class="lc-icon">📚</div><div class="lc-text"><h3>Zona de Învățare</h3><p>Ai acces! Continuă să înveți.</p></div><div class="lc-btn"><a href="invatare.html" class="btn btn-yellow">Deschide →</a></div>`;
   }
   render();

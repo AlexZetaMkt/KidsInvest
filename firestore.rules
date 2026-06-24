@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid));
+    }
+
+    function isParentOf(childUid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(childUid))
+        && userDoc(childUid).data.parentId == request.auth.uid;
+    }
+
+    function linksCurrentChildToParent(parentUid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && resource.data.type == "parinte"
+        && userDoc(request.auth.uid).data.parentId == parentUid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["children"])
+        && request.resource.data.children.hasAny([request.auth.uid]);
+    }
+
+    match /users/{uid} {
+      allow create: if isSelf(uid);
+      allow get, delete: if isSelf(uid) || isParentOf(uid);
+      allow update: if isSelf(uid) || isParentOf(uid) || linksCurrentChildToParent(uid);
+
+      // Needed during child signup: the app searches a parent by inviteCode.
+      allow list: if signedIn();
+
+      match /{subcollection}/{docId} {
+        allow read: if isSelf(uid) || isParentOf(uid);
+        allow create, update, delete: if isSelf(uid);
+      }
+    }
+
+    match /notify_list/{docId} {
+      allow create: if signedIn();
+      allow read, update, delete: if false;
+    }
+  }
+}

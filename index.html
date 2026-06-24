@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bănuții Mei — Intră în cont</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%90%B7%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="shared.css">
 <style>
   body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
@@ -194,8 +195,15 @@
     // redirect dacă deja logat
     auth.onAuthStateChanged(async user => {
       if (!user) return;
-      const snap = await db.collection('users').doc(user.uid).get();
-      if (snap.exists) redirect(snap.data().type);
+      try {
+        const snap = await db.collection('users').doc(user.uid).get();
+        if (snap.exists) redirect(snap.data().type);
+      } catch (e) {
+        console.error('Nu pot verifica profilul utilizatorului:', e);
+        const errEl = document.getElementById('l-err');
+        errEl.textContent = friendlyError(e.code);
+        errEl.classList.add('show');
+      }
     });
   } else {
     console.warn("⚠️ Firebase not initialized yet");
@@ -235,7 +243,13 @@
       const cred = await auth.signInWithEmailAndPassword(email, pass);
       const snap = await db.collection('users').doc(cred.user.uid).get();
       hideLoading();
-      if (snap.exists) redirect(snap.data().type);
+      if (snap.exists) {
+        redirect(snap.data().type);
+      } else {
+        await auth.signOut();
+        errEl.textContent = 'Contul există în autentificare, dar profilul lipsește din baza de date.';
+        errEl.classList.add('show');
+      }
     } catch(e) {
       hideLoading();
       errEl.textContent = friendlyError(e.code);
@@ -256,6 +270,7 @@
     }
 
     let extraData = {};
+    let childInviteCode = '';
 
     if (selectedType === 'normal') {
       const name = document.getElementById('n-name').value.trim();
@@ -277,22 +292,26 @@
       const lname = document.getElementById('c-lname').value.trim();
       const code  = document.getElementById('c-code').value.trim().toUpperCase();
       if (!fname || !lname || code.length < 6) { errEl.textContent='Completează toate câmpurile + codul!'; errEl.classList.add('show'); return; }
-
-      // validate parent code
-      showLoading('Verific codul părintelui...');
-      const parentSnap = await db.collection('users').where('inviteCode','==',code).where('type','==','parinte').get();
-      if (parentSnap.empty) {
-        hideLoading();
-        errEl.textContent = 'Codul nu este valid! Cere codul corect de la părintele tău.';
-        errEl.classList.add('show'); return;
-      }
-      extraData = { firstName: fname, lastName: lname, name: fname+' '+lname, parentId: parentSnap.docs[0].id, parentCode: code };
+      childInviteCode = code;
+      extraData = { firstName: fname, lastName: lname, name: fname+' '+lname, parentCode: code };
     }
 
     showLoading('Creez contul...');
     try {
       const cred = await auth.createUserWithEmailAndPassword(email, pass);
       const uid  = cred.user.uid;
+
+      if (selectedType === 'copil') {
+        showLoading('Verific codul părintelui...');
+        const parentSnap = await db.collection('users').where('inviteCode','==',childInviteCode).where('type','==','parinte').get();
+        if (parentSnap.empty) {
+          await cred.user.delete().catch(() => auth.signOut());
+          const invalidCodeError = new Error('Invalid parent invite code');
+          invalidCodeError.code = 'invite/invalid-code';
+          throw invalidCodeError;
+        }
+        extraData.parentId = parentSnap.docs[0].id;
+      }
 
       const userData = {
         uid, email, type: selectedType,
@@ -378,6 +397,8 @@
       'auth/invalid-email':      'Email invalid.',
       'auth/weak-password':      'Parola e prea slabă (minim 6 caractere).',
       'auth/too-many-requests':  'Prea multe încercări. Încearcă mai târziu.',
+      'permission-denied':       'Nu ai permisiune să citești profilul. Verifică regulile Firestore.',
+      'invite/invalid-code':     'Codul nu este valid! Cere codul corect de la părintele tău.',
     };
     return m[code] || 'A apărut o eroare. Încearcă din nou.';
   }

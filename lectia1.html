@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misiunea 1: Secretul Banilor — Bănuții Mei</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%90%B7%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --purple:    #4F46E5;
+    --purple-d:  #3730A3;
+    --purple-l:  #EEF2FF;
+    --gold:      #F59E0B;
+    --gold-l:    #FEF3C7;
+    --gold-d:    #D97706;
+    --green:     #059669;
+    --green-l:   #ECFDF5;
+    --red:       #DC2626;
+    --red-l:     #FEF2F2;
+    --text:      #1E1B4B;
+    --text2:     #4338CA;
+    --text3:     #6B7280;
+    --bg:        #F8F7FF;
+    --surface:   #FFFFFF;
+    --border:    #E5E7EB;
+    --sh:        0 2px 12px rgba(79,70,229,.08);
+    --sh-lg:     0 8px 32px rgba(79,70,229,.14);
+    --radius:    18px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.65; }
+
+  /* ── NAV ── */
+  .nav { background:linear-gradient(135deg,#1E1B4B,#4F46E5); padding:14px 20px; display:flex; align-items:center; gap:14px; }
+  .nav-brand { display:flex; align-items:center; gap:10px; color:white; text-decoration:none; }
+  .nav-brand h1 { font-size:.95rem; font-weight:900; }
+  .nav-brand p  { font-size:.7rem; opacity:.7; font-weight:600; }
+  .nav-back { margin-left:auto; color:white; background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.3); border-radius:50px; padding:6px 14px; font-size:.78rem; font-weight:800; cursor:pointer; text-decoration:none; }
+
+  /* ── HERO ── */
+  .hero {
+    background:linear-gradient(135deg,#1E1B4B 0%,#4F46E5 50%,#7C3AED 100%);
+    padding:40px 24px 60px; text-align:center; color:white; position:relative; overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.15); border:1.5px solid rgba(255,255,255,.3); border-radius:50px; padding:5px 14px; font-size:.72rem; font-weight:800; margin-bottom:16px; letter-spacing:.04em; }
+  .hero h1 { font-size:2rem; font-weight:900; margin-bottom:10px; line-height:1.2; }
+  .hero p  { font-size:.92rem; opacity:.8; font-weight:600; max-width:480px; margin:0 auto 24px; }
+  .progress-wrap { max-width:400px; margin:0 auto; }
+  .progress-label { display:flex; justify-content:space-between; font-size:.72rem; font-weight:800; opacity:.75; margin-bottom:8px; }
+  .progress-bar { background:rgba(255,255,255,.2); border-radius:100px; height:10px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,#FCD34D,#F59E0B); transition:width .8s cubic-bezier(.34,1.56,.64,1); }
+
+  /* ── MAIN ── */
+  .main { max-width:720px; margin:0 auto; padding:32px 20px 80px; }
+
+  /* ── STORY CARD ── */
+  .story-card {
+    background:var(--surface); border-radius:var(--radius); border:2px solid var(--border);
+    padding:28px; box-shadow:var(--sh); margin-bottom:24px;
+    opacity:0; transform:translateY(24px); transition:opacity .5s, transform .5s;
+  }
+  .story-card.visible { opacity:1; transform:none; }
+  .story-card .card-tag {
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--purple-l); color:var(--purple);
+    border-radius:50px; padding:4px 12px; font-size:.68rem; font-weight:900;
+    letter-spacing:.05em; margin-bottom:14px;
+  }
+  .story-card h2 { font-size:1.2rem; font-weight:900; margin-bottom:14px; color:var(--text); }
+  .story-card p  { font-size:.9rem; color:#374151; font-weight:500; margin-bottom:12px; }
+  .story-card p:last-child { margin-bottom:0; }
+
+  /* speech bubble */
+  .bubble {
+    background:var(--purple-l); border:2px solid #C4B5FD;
+    border-radius:16px; border-bottom-left-radius:4px;
+    padding:14px 18px; margin:14px 0; font-size:.88rem; font-weight:700; color:var(--purple-d);
+    position:relative;
+  }
+  .bubble.right { border-bottom-left-radius:16px; border-bottom-right-radius:4px; background:var(--gold-l); border-color:#FDE68A; color:#78350F; }
+  .bubble-name { font-size:.65rem; font-weight:900; opacity:.65; margin-bottom:4px; letter-spacing:.04em; text-transform:uppercase; }
+
+  /* fact highlight */
+  .highlight-box {
+    background:linear-gradient(135deg,var(--gold-l),#FEF9EC);
+    border:2px solid #FDE68A; border-radius:14px; padding:16px 20px;
+    margin:16px 0; display:flex; align-items:flex-start; gap:12px;
+  }
+  .highlight-box .hb-icon { font-size:1.6rem; flex-shrink:0; }
+  .highlight-box .hb-text { font-size:.84rem; font-weight:700; color:#78350F; line-height:1.6; }
+  .highlight-box .hb-text strong { color:var(--gold-d); }
+
+  .problem-box {
+    background:var(--red-l); border:2px solid #FECACA; border-radius:14px;
+    padding:16px 20px; margin:16px 0;
+  }
+  .problem-box h4 { font-size:.82rem; font-weight:900; color:var(--red); margin-bottom:8px; }
+  .problem-box ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .problem-box li { font-size:.84rem; font-weight:600; color:#7F1D1D; padding-left:20px; position:relative; }
+  .problem-box li::before { content:'❌'; position:absolute; left:0; font-size:.7rem; top:2px; }
+
+  .solution-box {
+    background:var(--green-l); border:2px solid #A7F3D0; border-radius:14px;
+    padding:16px 20px; margin:16px 0;
+  }
+  .solution-box h4 { font-size:.82rem; font-weight:900; color:var(--green); margin-bottom:8px; }
+  .solution-box ul { list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .solution-box li { font-size:.84rem; font-weight:600; color:#064E3B; padding-left:22px; position:relative; }
+  .solution-box li::before { content:'✅'; position:absolute; left:0; font-size:.75rem; top:1px; }
+
+  /* timeline */
+  .timeline { margin:20px 0; }
+  .tl-item { display:flex; gap:14px; margin-bottom:16px; align-items:flex-start; }
+  .tl-dot { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--purple),#7C3AED); color:white; font-size:.85rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 8px rgba(79,70,229,.3); }
+  .tl-body { flex:1; padding-top:4px; }
+  .tl-body strong { font-size:.85rem; font-weight:900; display:block; margin-bottom:3px; }
+  .tl-body span { font-size:.8rem; color:var(--text3); font-weight:600; }
+
+  /* ── INTERACTIVE: TROC GAME ── */
+  .interactive-card {
+    background:linear-gradient(135deg,#1E1B4B,#312E81);
+    border-radius:var(--radius); padding:28px; margin-bottom:24px;
+    color:white; box-shadow:var(--sh-lg);
+    opacity:0; transform:translateY(24px); transition:opacity .5s, transform .5s;
+  }
+  .interactive-card.visible { opacity:1; transform:none; }
+  .ic-tag { display:inline-flex; align-items:center; gap:5px; background:rgba(245,158,11,.2); border:1.5px solid rgba(245,158,11,.4); color:#FCD34D; border-radius:50px; padding:4px 12px; font-size:.68rem; font-weight:900; letter-spacing:.04em; margin-bottom:14px; }
+  .ic-title { font-size:1.1rem; font-weight:900; margin-bottom:8px; }
+  .ic-desc  { font-size:.83rem; opacity:.8; font-weight:600; margin-bottom:20px; line-height:1.6; }
+
+  /* troc game */
+  .troc-scene { background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.12); border-radius:14px; padding:20px; margin-bottom:16px; }
+  .troc-characters { display:flex; align-items:center; justify-content:space-around; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+  .troc-char { text-align:center; }
+  .troc-char .char-icon { font-size:2.5rem; display:block; margin-bottom:6px; }
+  .troc-char .char-name { font-size:.72rem; font-weight:800; opacity:.8; }
+  .troc-char .char-has  { font-size:.78rem; font-weight:700; background:rgba(255,255,255,.1); border-radius:8px; padding:4px 10px; margin-top:4px; }
+  .troc-arrow { font-size:1.6rem; opacity:.6; }
+  .troc-question { font-size:.88rem; font-weight:800; text-align:center; margin-bottom:16px; color:#FCD34D; }
+  .troc-options { display:flex; flex-direction:column; gap:8px; }
+  .troc-opt { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:12px; padding:12px 16px; font-size:.84rem; font-weight:700; cursor:pointer; transition:all .2s; text-align:left; color:white; }
+  .troc-opt:hover { background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.35); transform:translateX(4px); }
+  .troc-opt.correct { background:rgba(5,150,105,.3); border-color:#34D399; }
+  .troc-opt.wrong   { background:rgba(220,38,38,.3);  border-color:#F87171; }
+  .troc-feedback { display:none; background:rgba(255,255,255,.08); border-radius:12px; padding:14px 16px; font-size:.84rem; font-weight:700; margin-top:12px; line-height:1.6; }
+  .troc-feedback.show { display:block; }
+  .troc-next { display:none; margin-top:12px; background:linear-gradient(135deg,#F59E0B,#D97706); color:white; border:none; border-radius:50px; padding:10px 22px; font-size:.84rem; font-weight:900; cursor:pointer; transition:transform .15s; }
+  .troc-next:hover { transform:scale(1.04); }
+  .troc-next.show { display:inline-flex; align-items:center; gap:6px; }
+
+  /* ── INTERACTIVE: MONEY SORT ── */
+  .sort-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:16px; }
+  .sort-item { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:12px; padding:14px; text-align:center; cursor:grab; transition:all .2s; user-select:none; }
+  .sort-item:hover { background:rgba(255,255,255,.15); transform:scale(1.03); }
+  .sort-item .si-icon { font-size:1.8rem; display:block; margin-bottom:5px; }
+  .sort-item .si-name { font-size:.76rem; font-weight:800; }
+  .sort-item .si-era  { font-size:.66rem; opacity:.6; font-weight:600; }
+  .sort-item.placed   { opacity:.5; cursor:default; }
+  .sort-zones { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .sort-zone {
+    border:2px dashed rgba(255,255,255,.25); border-radius:12px; min-height:80px;
+    padding:10px; display:flex; flex-wrap:wrap; gap:6px; align-items:flex-start; transition:border-color .2s;
+  }
+  .sort-zone.hover { border-color:#FCD34D; background:rgba(252,211,77,.1); }
+  .sort-zone-label { font-size:.72rem; font-weight:900; opacity:.7; letter-spacing:.04em; margin-bottom:8px; display:block; }
+
+  /* ── INTERACTIVE: TIMELINE SORT ── */
+  .tl-sort { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .tl-sort-item { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; cursor:grab; transition:all .2s; }
+  .tl-sort-item:hover { background:rgba(255,255,255,.14); }
+  .tl-sort-item.dragging { opacity:.4; }
+  .tl-sort-item .ts-icon { font-size:1.5rem; flex-shrink:0; }
+  .tl-sort-item .ts-text { font-size:.84rem; font-weight:700; flex:1; }
+  .tl-sort-item .ts-handle { font-size:.9rem; opacity:.4; }
+  .sort-check-btn { background:linear-gradient(135deg,#F59E0B,#D97706); color:white; border:none; border-radius:50px; padding:10px 22px; font-size:.84rem; font-weight:900; cursor:pointer; transition:transform .15s; }
+  .sort-check-btn:hover { transform:scale(1.04); }
+
+  /* ── QUIZ ── */
+  .quiz-card {
+    background:var(--surface); border-radius:var(--radius); border:2px solid var(--border);
+    padding:28px; box-shadow:var(--sh); margin-bottom:24px;
+    opacity:0; transform:translateY(24px); transition:opacity .5s, transform .5s;
+  }
+  .quiz-card.visible { opacity:1; transform:none; }
+  .quiz-card .quiz-tag { display:inline-flex; align-items:center; gap:5px; background:var(--gold-l); color:var(--gold-d); border-radius:50px; padding:4px 12px; font-size:.68rem; font-weight:900; letter-spacing:.05em; margin-bottom:14px; }
+  .quiz-q { font-size:1rem; font-weight:900; margin-bottom:18px; color:var(--text); line-height:1.5; }
+  .quiz-opts { display:flex; flex-direction:column; gap:9px; }
+  .quiz-opt { background:var(--bg); border:2px solid var(--border); border-radius:12px; padding:13px 16px; font-size:.87rem; font-weight:700; cursor:pointer; transition:all .2s; text-align:left; color:var(--text); display:flex; align-items:center; gap:10px; }
+  .quiz-opt:hover:not([disabled]) { border-color:var(--purple); background:var(--purple-l); }
+  .quiz-opt.correct { border-color:var(--green); background:var(--green-l); color:#065F46; }
+  .quiz-opt.wrong   { border-color:var(--red); background:var(--red-l); color:#7F1D1D; }
+  .quiz-opt .opt-letter { width:24px; height:24px; border-radius:50%; border:2px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:900; flex-shrink:0; }
+  .quiz-feedback { display:none; border-radius:12px; padding:13px 16px; font-size:.84rem; font-weight:700; margin-top:14px; line-height:1.6; }
+  .quiz-feedback.show.correct { display:block; background:var(--green-l); color:#065F46; border:2px solid #A7F3D0; }
+  .quiz-feedback.show.wrong   { display:block; background:var(--red-l); color:#7F1D1D; border:2px solid #FECACA; }
+  .quiz-score { text-align:center; padding:20px; }
+  .quiz-score .qs-icon { font-size:3rem; margin-bottom:10px; }
+  .quiz-score h3 { font-size:1.1rem; font-weight:900; margin-bottom:6px; }
+  .quiz-score p  { font-size:.83rem; color:var(--text3); font-weight:600; }
+
+  /* ── COMPLETION ── */
+  .completion-card {
+    background:linear-gradient(135deg,#059669,#34D399); border-radius:var(--radius);
+    padding:32px; text-align:center; color:white; box-shadow:var(--sh-lg); margin-bottom:24px;
+    display:none;
+  }
+  .completion-card.show { display:block; animation:popIn .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes popIn { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+  .completion-card .cc-icon { font-size:3.5rem; margin-bottom:14px; display:block; animation:float 3s ease-in-out infinite; }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .completion-card h2 { font-size:1.4rem; font-weight:900; margin-bottom:8px; }
+  .completion-card p  { font-size:.88rem; opacity:.85; font-weight:600; max-width:400px; margin:0 auto 22px; line-height:1.6; }
+  .xp-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.4); border-radius:50px; padding:10px 22px; font-size:1rem; font-weight:900; margin-bottom:20px; }
+  .btn-next-lesson { background:white; color:var(--green); border:none; border-radius:50px; padding:14px 28px; font-size:.95rem; font-weight:900; cursor:pointer; transition:transform .15s, box-shadow .15s; box-shadow:0 4px 14px rgba(0,0,0,.15); }
+  .btn-next-lesson:hover { transform:scale(1.04); box-shadow:0 6px 20px rgba(0,0,0,.2); }
+
+  /* ── FUN FACT ── */
+  .fun-fact { background:linear-gradient(135deg,var(--gold-l),#FEF9EC); border:2px solid #FDE68A; border-radius:14px; padding:18px 20px; margin:20px 0; display:flex; gap:12px; align-items:flex-start; }
+  .fun-fact .ff-icon { font-size:1.6rem; flex-shrink:0; }
+  .fun-fact .ff-body strong { font-size:.8rem; font-weight:900; color:var(--gold-d); display:block; margin-bottom:4px; letter-spacing:.03em; }
+  .fun-fact .ff-body span  { font-size:.82rem; font-weight:600; color:#78350F; line-height:1.6; }
+
+  /* ── CHALLENGE ── */
+  .challenge-card { background:linear-gradient(135deg,#4F46E5,#7C3AED); border-radius:var(--radius); padding:24px; margin-bottom:24px; color:white; }
+  .challenge-card .ch-tag { display:inline-flex; align-items:center; gap:5px; background:rgba(252,211,77,.2); border:1.5px solid rgba(252,211,77,.4); color:#FCD34D; border-radius:50px; padding:4px 12px; font-size:.68rem; font-weight:900; letter-spacing:.04em; margin-bottom:12px; }
+  .challenge-card h3 { font-size:1rem; font-weight:900; margin-bottom:8px; }
+  .challenge-card p  { font-size:.83rem; opacity:.8; font-weight:600; margin-bottom:16px; line-height:1.6; }
+  .challenge-opts { display:flex; flex-direction:column; gap:8px; }
+  .ch-opt { background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:12px; padding:12px 16px; font-size:.84rem; font-weight:700; cursor:pointer; transition:all .2s; text-align:left; color:white; display:flex; align-items:center; gap:10px; }
+  .ch-opt:hover { background:rgba(255,255,255,.18); transform:translateX(4px); }
+  .ch-opt.selected { border-color:#FCD34D; background:rgba(252,211,77,.15); color:#FCD34D; }
+  .ch-vote-bar { margin-top:8px; height:6px; border-radius:100px; background:rgba(255,255,255,.15); overflow:hidden; }
+  .ch-vote-fill { height:100%; border-radius:100px; background:#FCD34D; transition:width 1s; }
+
+  /* ── COIN ANIMATION ── */
+  .coin-fall { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+  .coin { position:absolute; font-size:1.4rem; animation:coinFall 1.2s ease-in forwards; }
+  @keyframes coinFall { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+  /* ── SCROLL REVEAL ── */
+  @media(prefers-reduced-motion:reduce){ .story-card,.interactive-card,.quiz-card{ opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="invatare.html">
+    <span style="font-size:1.5rem">🐷</span>
+    <div><h1>Bănuții Mei</h1><p>Zona de Învățare</p></div>
+  </a>
+  <a class="nav-back" href="invatare.html">← Înapoi</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🌟 Modulul 1 · Misiunea 1</div>
+  <h1>Secretul Banilor</h1>
+  <p>Călătorește 5.000 de ani în trecut și descoperă cum au apărut banii!</p>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progres lecție</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ─── SECTION 1: INTRO ─── -->
+  <div class="story-card" data-section="1">
+    <div class="card-tag">📖 Capitolul 1</div>
+    <h2>🌟 Misiunea 1: Secretul Banilor</h2>
+    <p>Salut, viitor investitor!</p>
+    <p>Astăzi începe aventura ta în lumea banilor. Poate te-ai întrebat vreodată:</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin:16px 0">
+      <div style="background:#F0F0FF;border-radius:10px;padding:11px 14px;font-size:.87rem;font-weight:700;color:var(--purple-d)">🤔 De ce o înghețată costă bani?</div>
+      <div style="background:#F0F0FF;border-radius:10px;padding:11px 14px;font-size:.87rem;font-weight:700;color:var(--purple-d)">🤔 De unde vin banii?</div>
+      <div style="background:#F0F0FF;border-radius:10px;padding:11px 14px;font-size:.87rem;font-weight:700;color:var(--purple-d)">🤔 De ce unii oameni au mulți bani, iar alții nu?</div>
+      <div style="background:#F0F0FF;border-radius:10px;padding:11px 14px;font-size:.87rem;font-weight:700;color:var(--purple-d)">🤔 Cum reușesc unii să cumpere case, mașini și să călătorească în jurul lumii?</div>
+    </div>
+    <p>În această misiune vei descoperi răspunsurile. Dar mai întâi...</p>
+    <div class="highlight-box">
+      <div class="hb-icon">⏳</div>
+      <div class="hb-text">Trebuie să ne întoarcem în timp. Foarte, foarte mult în timp... <strong>Aproximativ 5.000 de ani.</strong></div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 2: O LUME FARA BANI ─── -->
+  <div class="story-card" data-section="2">
+    <div class="card-tag">🏘️ Capitolul 2</div>
+    <h2>📜 O Lume Fără Bani</h2>
+    <p>Închide ochii pentru câteva secunde și imaginează-ți:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0">
+      <div style="background:var(--red-l);border:1.5px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:.8rem;font-weight:700;color:#7F1D1D;text-align:center">🏪<br>Fără supermarket</div>
+      <div style="background:var(--red-l);border:1.5px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:.8rem;font-weight:700;color:#7F1D1D;text-align:center">💳<br>Fără card bancar</div>
+      <div style="background:var(--red-l);border:1.5px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:.8rem;font-weight:700;color:#7F1D1D;text-align:center">📱<br>Fără telefon mobil</div>
+      <div style="background:var(--red-l);border:1.5px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:.8rem;font-weight:700;color:#7F1D1D;text-align:center">💸<br>Fără bani!</div>
+    </div>
+    <p>Ai în buzunar o bancnotă de 100 lei. Fericit, mergi la un comerciant:</p>
+    <div class="bubble">
+      <div class="bubble-name">👦 TU</div>
+      — Bună ziua! Aș vrea să cumpăr niște pâine.
+    </div>
+    <div class="bubble right">
+      <div class="bubble-name">🧑‍🌾 COMERCIANTUL</div>
+      — Ce este hârtia aceea? Nu am auzit niciodată de <em>bani</em>!
+    </div>
+    <div class="highlight-box">
+      <div class="hb-icon">💡</div>
+      <div class="hb-text">Dintr-o dată îți dai seama că în această lume nu există bani. Totul funcționează complet diferit. Oamenii aveau un alt sistem...</div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3: TROC ─── -->
+  <div class="story-card" data-section="3">
+    <div class="card-tag">🔄 Capitolul 3</div>
+    <h2>🐔 Sistemul TROC</h2>
+    <p>Dacă voiai ceva, trebuia să dai altceva la schimb. Acest sistem se numea <strong>TROC</strong>.</p>
+    <div style="background:linear-gradient(135deg,#F0F9FF,#E0F2FE);border:2px solid #BAE6FD;border-radius:14px;padding:18px;margin:14px 0;text-align:center">
+      <div style="font-size:2rem;margin-bottom:10px">🐔🐔🐔 ➜ 🥛🥛🥛🥛🥛🥛🥛🥛🥛🥛</div>
+      <div style="font-size:.85rem;font-weight:700;color:#0C4A6E">3 găini <strong>➜</strong> 10 litri de lapte · Toată lumea mulțumită! 😊</div>
+    </div>
+    <p>Pare simplu... dar nu chiar.</p>
+
+    <h2 style="margin-top:18px">😅 Problema lui Matei</h2>
+    <p>Matei dorea o pereche de sandale de la meșterul satului. El avea un sac cu mere.</p>
+    <div class="bubble">
+      <div class="bubble-name">👦 MATEI</div>
+      — Salut! Aș vrea să cumpăr sandalelea. Îți dau mere?
+    </div>
+    <div class="bubble right">
+      <div class="bubble-name">👨‍🔧 MEȘTERUL</div>
+      — Nu vreau mere. Am deja suficiente!
+    </div>
+    <p>Matei pleacă trist. Avea ceva valoros. Avea nevoie de ceva valoros. Dar nu putea face schimbul!</p>
+
+    <div class="problem-box">
+      <h4>🤯 Alte probleme ale trocului</h4>
+      <ul>
+        <li>Dacă cumperi un cal cu 200 de ouă — cum îl dai pe jumătate?</li>
+        <li>Ouăle, laptele și fructele se strică — nu poți economisi</li>
+        <li>Trebuia să găsești exact persoana potrivită pentru schimb</li>
+        <li>Căratul multor lucruri era greu și incomod</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ─── INTERACTIVE 1: TROC GAME ─── -->
+  <div class="interactive-card" data-section="4" id="trocGame">
+    <div class="ic-tag">🎮 Joc Interactiv</div>
+    <div class="ic-title">Ești în lumea trocului!</div>
+    <div class="ic-desc">Ajută personajele să facă schimburi corecte. Ce ar trebui să facă Matei?</div>
+
+    <div class="troc-scene" id="trocScene">
+      <div class="troc-characters">
+        <div class="troc-char">
+          <span class="char-icon">👦</span>
+          <div class="char-name">MATEI</div>
+          <div class="char-has">🌽 Are: 5 saci cu porumb</div>
+        </div>
+        <div class="troc-arrow">⇄</div>
+        <div class="troc-char">
+          <span class="char-icon">🧑‍🏭</span>
+          <div class="char-name">FIERARUL</div>
+          <div class="char-has">⚔️ Are: unelte de fier</div>
+        </div>
+      </div>
+      <div class="troc-question" id="trocQuestion">Matei vrea o secure (unealtă). Fierarul nu vrea porumb — vrea pânză. Ce ar trebui să facă Matei?</div>
+      <div class="troc-options" id="trocOptions">
+        <button class="troc-opt" onclick="answerTroc(this, false)">💢 Să se supere și să plece acasă</button>
+        <button class="troc-opt" onclick="answerTroc(this, false)">🎁 Să dea porumbul cadou, fără să primească nimic</button>
+        <button class="troc-opt" onclick="answerTroc(this, true)">🔄 Să găsească mai întâi pe cineva care are pânză și vrea porumb, apoi să revină la fierar</button>
+        <button class="troc-opt" onclick="answerTroc(this, false)">😴 Să aștepte până fierarul schimbă parerea</button>
+      </div>
+      <div class="troc-feedback" id="trocFeedback"></div>
+      <button class="troc-next" id="trocNext" onclick="nextTrocStep()">Continuă ➜</button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4: NASTEREA BANILOR ─── -->
+  <div class="story-card" data-section="5">
+    <div class="card-tag">💡 Capitolul 4</div>
+    <h2>💡 Nașterea Banilor</h2>
+    <p>Oamenii aveau nevoie de ceva mai bun. Ceva care să rezolve toate problemele trocului:</p>
+    <div class="solution-box">
+      <h4>✨ Cerințe pentru noul sistem</h4>
+      <ul>
+        <li>Ușor de transportat — să nu cari saci cu porumb</li>
+        <li>Să nu se strice — să poți economisi pentru mai târziu</li>
+        <li>Acceptat de toată lumea — valoare universală</li>
+        <li>Ușor de împărțit — să poți da rest exact</li>
+      </ul>
+    </div>
+    <p>Și așa, în diferite colțuri ale lumii, oamenii au descoperit primul <strong>bani primitivi</strong>:</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;text-align:center">
+      <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px"><div style="font-size:1.6rem">🐚</div><div style="font-size:.75rem;font-weight:700;margin-top:4px">Scoici</div><div style="font-size:.65rem;color:var(--text3)">Asia, Africa</div></div>
+      <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px"><div style="font-size:1.6rem">🧂</div><div style="font-size:.75rem;font-weight:700;margin-top:4px">Sare</div><div style="font-size:.65rem;color:var(--text3)">Roma Antică</div></div>
+      <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px"><div style="font-size:1.6rem">🌰</div><div style="font-size:.75rem;font-weight:700;margin-top:4px">Cacao</div><div style="font-size:.65rem;color:var(--text3)">America</div></div>
+      <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px"><div style="font-size:1.6rem">🦊</div><div style="font-size:.75rem;font-weight:700;margin-top:4px">Blănuri</div><div style="font-size:.65rem;color:var(--text3)">Nord Europa</div></div>
+      <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px"><div style="font-size:1.6rem">💎</div><div style="font-size:.75rem;font-weight:700;margin-top:4px">Pietre rare</div><div style="font-size:.65rem;color:var(--text3)">Diverse</div></div>
+      <div style="background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px"><div style="font-size:1.6rem">🪙</div><div style="font-size:.75rem;font-weight:700;margin-top:4px">Metal</div><div style="font-size:.65rem;color:var(--text3)">Lydia ~600 î.Hr.</div></div>
+    </div>
+    <div class="fun-fact">
+      <div class="ff-icon">🧂</div>
+      <div class="ff-body"><strong>ȘTIAI CĂ?</strong><span>Cuvântul „salariu" vine din latinescul <em>salarium</em> — legat de sare — pentru că soldații romani erau plătiți parțial în sare! De aceea spunem și azi că un angajat „merită salariul".</span></div>
+    </div>
+  </div>
+
+  <!-- ─── INTERACTIVE 2: TIMELINE SORT ─── -->
+  <div class="interactive-card" data-section="6" id="timelineSort">
+    <div class="ic-tag">🎮 Joc Interactiv</div>
+    <div class="ic-title">Ordonează Istoria Banilor!</div>
+    <div class="ic-desc">Trage și plasează evenimentele în ordinea corectă, de la cel mai vechi la cel mai nou.</div>
+    <div class="tl-sort" id="tlSortList">
+      <div class="tl-sort-item" draggable="true" data-order="5" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+        <span class="ts-icon">💳</span>
+        <span class="ts-text">Apariția plăților digitale și a cardurilor</span>
+        <span class="ts-handle">⠿</span>
+      </div>
+      <div class="tl-sort-item" draggable="true" data-order="1" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+        <span class="ts-icon">🐔</span>
+        <span class="ts-text">Trocul — schimbul direct de bunuri</span>
+        <span class="ts-handle">⠿</span>
+      </div>
+      <div class="tl-sort-item" draggable="true" data-order="3" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+        <span class="ts-icon">🪙</span>
+        <span class="ts-text">Primele monede din metal (Lydia, ~600 î.Hr.)</span>
+        <span class="ts-handle">⠿</span>
+      </div>
+      <div class="tl-sort-item" draggable="true" data-order="2" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+        <span class="ts-icon">🐚</span>
+        <span class="ts-text">Scoici, sare și obiecte rare ca mijloc de schimb</span>
+        <span class="ts-handle">⠿</span>
+      </div>
+      <div class="tl-sort-item" draggable="true" data-order="4" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dropItem(event)">
+        <span class="ts-icon">📜</span>
+        <span class="ts-text">Primele bancnote din hârtie (China)</span>
+        <span class="ts-handle">⠿</span>
+      </div>
+    </div>
+    <button class="sort-check-btn" onclick="checkTimeline()">✅ Verifică ordinea</button>
+    <div class="troc-feedback" id="timelineFeedback" style="margin-top:12px"></div>
+  </div>
+
+  <!-- ─── SECTION 5: PREZENT ─── -->
+  <div class="story-card" data-section="7">
+    <div class="card-tag">📱 Capitolul 5</div>
+    <h2>📱 Banii Astăzi</h2>
+    <p>Astăzi trăim într-o lume uimitoare. Poți plăti:</p>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot">💳</div><div class="tl-body"><strong>Cu cardul</strong><span>Printr-o bucată de plastic cu chip electronic</span></div></div>
+      <div class="tl-item"><div class="tl-dot">📱</div><div class="tl-body"><strong>Cu telefonul</strong><span>Simplu apropiindu-l de un terminal</span></div></div>
+      <div class="tl-item"><div class="tl-dot">⌚</div><div class="tl-body"><strong>Cu ceasul</strong><span>Smartwatch-urile pot stoca informații bancare</span></div></div>
+      <div class="tl-item"><div class="tl-dot">💻</div><div class="tl-body"><strong>Online</strong><span>Trimiți bani instant în orice colț al lumii</span></div></div>
+    </div>
+    <div class="highlight-box">
+      <div class="hb-icon">🤯</div>
+      <div class="hb-text">Cel mai surprinzător lucru: <strong>majoritatea banilor din lume nu sunt bancnote sau monede fizice.</strong> Ei există doar ca numere în calculatoarele băncilor!</div>
+    </div>
+    <div class="fun-fact">
+      <div class="ff-icon">🐚</div>
+      <div class="ff-body"><strong>ȘTIAI CĂ?</strong><span>În unele țări din Africa, scoicile au fost folosite ca bani timp de peste 3.000 de ani. Astăzi există oameni care trec luni întregi fără să atingă deloc bani cash!</span></div>
+    </div>
+  </div>
+
+  <!-- ─── QUIZ FINAL ─── -->
+  <div class="quiz-card" data-section="8" id="quizCard">
+    <div class="quiz-tag">🧠 Quiz Final — Misiunea 1</div>
+
+    <div id="quizContent">
+      <div id="q1" class="quiz-question">
+        <p class="quiz-q">Întrebarea 1 din 4: Cum se numea sistemul prin care oamenii schimbau bunuri direct, fără bani?</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="answerQuiz(this,'q1',false,'A')"><span class="opt-letter">A</span> Comerț</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q1',true,'B')"><span class="opt-letter">B</span> Troc</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q1',false,'C')"><span class="opt-letter">C</span> Licitație</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q1',false,'D')"><span class="opt-letter">D</span> Bancă</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q1"></div>
+      </div>
+
+      <div id="q2" class="quiz-question" style="display:none">
+        <p class="quiz-q">Întrebarea 2 din 4: Care era una din marile probleme ale trocului?</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="answerQuiz(this,'q2',false,'A')"><span class="opt-letter">A</span> Oamenii nu aveau ce oferi</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q2',false,'B')"><span class="opt-letter">B</span> Schimbul era prea rapid</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q2',true,'C')"><span class="opt-letter">C</span> Trebuia să găsești exact persoana potrivită și bunurile se stricau</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q2',false,'D')"><span class="opt-letter">D</span> Nu exista suficientă mâncare</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q2"></div>
+      </div>
+
+      <div id="q3" class="quiz-question" style="display:none">
+        <p class="quiz-q">Întrebarea 3 din 4: Unde au apărut primele monede din metal?</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="answerQuiz(this,'q3',false,'A')"><span class="opt-letter">A</span> China</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q3',false,'B')"><span class="opt-letter">B</span> Roma Antică</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q3',true,'C')"><span class="opt-letter">C</span> Lydia (actuala Turcie)</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q3',false,'D')"><span class="opt-letter">D</span> Egipt</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q3"></div>
+      </div>
+
+      <div id="q4" class="quiz-question" style="display:none">
+        <p class="quiz-q">Întrebarea 4 din 4: De unde vine cuvântul „salariu"?</p>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="answerQuiz(this,'q4',false,'A')"><span class="opt-letter">A</span> Din cuvântul „aur" în latină</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q4',false,'B')"><span class="opt-letter">B</span> Din numele unui rege roman</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q4',true,'C')"><span class="opt-letter">C</span> Din latinescul pentru sare (salarium)</button>
+          <button class="quiz-opt" onclick="answerQuiz(this,'q4',false,'D')"><span class="opt-letter">D</span> Din cuvântul „muncă" în greacă</button>
+        </div>
+        <div class="quiz-feedback" id="fb-q4"></div>
+      </div>
+
+      <div id="quizFinal" class="quiz-score" style="display:none">
+        <div class="qs-icon" id="quizFinalIcon">🏆</div>
+        <h3 id="quizFinalTitle">Felicitări!</h3>
+        <p id="quizFinalText"></p>
+        <button style="margin-top:16px;background:var(--purple);color:white;border:none;border-radius:50px;padding:12px 24px;font-size:.9rem;font-weight:900;cursor:pointer" onclick="showCompletion()">Finalizează Misiunea →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── CHALLENGE ─── -->
+  <div class="challenge-card" id="challengeCard" style="display:none">
+    <div class="ch-tag">⭐ Provocarea Exploratorului</div>
+    <h3>Privește în jur și gândește-te...</h3>
+    <p>Care dintre acestea crezi că va fi cel mai folosit peste 20 de ani?</p>
+    <div class="challenge-opts" id="challengeOpts">
+      <button class="ch-opt" onclick="voteChallenge(this,'coin')">🪙 Monede fizice</button>
+      <button class="ch-opt" onclick="voteChallenge(this,'card')">💳 Carduri bancare</button>
+      <button class="ch-opt" onclick="voteChallenge(this,'phone')">📱 Plata cu telefonul</button>
+      <button class="ch-opt" onclick="voteChallenge(this,'crypto')">🔐 Criptomonede digitale</button>
+    </div>
+    <div id="challengeResult" style="display:none;margin-top:14px;font-size:.84rem;font-weight:700;opacity:.9;line-height:1.6"></div>
+  </div>
+
+  <!-- ─── COMPLETION ─── -->
+  <div class="completion-card" id="completionCard">
+    <span class="cc-icon">🏆</span>
+    <h2>Misiunea 1 Completată!</h2>
+    <p>Ai descoperit secretul banilor și cum au evoluat de la troc la plăți digitale. Ești pregătit pentru Misiunea 2!</p>
+    <div class="xp-badge">⭐ +50 XP Câștigat!</div>
+    <br>
+    <button class="btn-next-lesson" onclick="goNextLesson()">Misiunea 2: Cum funcționează bugetul? →</button>
+  </div>
+
+</div><!-- /main -->
+
+<div class="coin-fall" id="coinFall"></div>
+
+<script>
+// ── PROGRESS ──────────────────────────────────────────────────────────────────
+const TOTAL_SECTIONS = 8;
+let completedSections = new Set();
+let quizAnswers = {};
+let quizScore = 0;
+let currentQuiz = 'q1';
+let trocStep = 0;
+
+function updateProgress() {
+  const pct = Math.round((completedSections.size / TOTAL_SECTIONS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      const sec = e.target.dataset.section;
+      if (sec) { completedSections.add(sec); updateProgress(); }
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.story-card, .interactive-card, .quiz-card').forEach(el => observer.observe(el));
+
+// ── TROC GAME ─────────────────────────────────────────────────────────────────
+const trocSteps = [
+  {
+    chars: ['👦 Matei<br><small>🌽 Are porumb</small>', '🧑‍🏭 Fierarul<br><small>⚔️ Vrea pânză</small>'],
+    q: 'Matei vrea o secure. Fierarul nu vrea porumb — vrea pânză. Ce face Matei?',
+    opts: [
+      { text: '💢 Să se supere și să plece acasă', correct: false },
+      { text: '🎁 Să dea porumbul cadou', correct: false },
+      { text: '🔄 Să găsească cineva cu pânză care vrea porumb, și să revină', correct: true },
+      { text: '😴 Să aștepte până fierarul se răzgândește', correct: false }
+    ],
+    feedback: { correct: '✅ Exact! Acesta este un lanț de troc — una dintre marile probleme ale sistemului. Uneori trebuia să faci 3-4 schimburi ca să obții ce voiai!', wrong: '❌ Hmm, nu chiar. Matei trebuie să fie creativ și să găsească o cale de a obține pânza, apoi să revină la fierar.' }
+  },
+  {
+    chars: ['👧 Maria<br><small>🥚 Are 200 ouă</small>', '🧑‍🌾 Fermierul<br><small>🐎 Are un cal</small>'],
+    q: 'Maria vrea să cumpere un cal. Fermierul acceptă ouă ca plată. Dar un cal valorează mai mult decât 200 ouă... Ce problemă apare?',
+    opts: [
+      { text: '🐎 Nu se poate împărți calul în jumătate', correct: true },
+      { text: '🥚 Ouăle sunt prea grele de cărtat', correct: false },
+      { text: '😤 Fermierul nu place Maria', correct: false },
+      { text: '🌧️ A venit ploaia', correct: false }
+    ],
+    feedback: { correct: '✅ Bravo! Indivizibilitatea era o mare problemă — dacă lucrurile nu aveau valori egale exacte, tranzacția era imposibilă!', wrong: '❌ Nu tocmai. Gândește-te: valoarea unui cal nu se potrivește exact cu 200 ouă. Ce faci cu diferența?' }
+  }
+];
+
+function answerTroc(btn, isCorrect) {
+  const opts = document.querySelectorAll('.troc-opt');
+  opts.forEach(o => { o.disabled = true; o.style.opacity = '.6'; });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  const step = trocSteps[trocStep];
+  const fb = document.getElementById('trocFeedback');
+  fb.textContent = isCorrect ? step.feedback.correct : step.feedback.wrong;
+  fb.classList.add('show');
+
+  const nxt = document.getElementById('trocNext');
+  nxt.classList.add('show');
+  nxt.textContent = trocStep < trocSteps.length - 1 ? 'Următoarea situație ➜' : 'Continuă lecția ➜';
+
+  if (isCorrect) spawnCoins(3);
+}
+
+function nextTrocStep() {
+  trocStep++;
+  if (trocStep >= trocSteps.length) {
+    completedSections.add('4');
+    updateProgress();
+    document.getElementById('trocGame').style.opacity = '.7';
+    return;
+  }
+  const step = trocSteps[trocStep];
+  document.getElementById('trocQuestion').textContent = step.q;
+  document.getElementById('trocOptions').innerHTML = step.opts.map(o =>
+    `<button class="troc-opt" onclick="answerTroc(this,${o.correct})">${o.text}</button>`
+  ).join('');
+  document.getElementById('trocFeedback').classList.remove('show');
+  document.getElementById('trocNext').classList.remove('show');
+}
+
+// ── TIMELINE SORT ─────────────────────────────────────────────────────────────
+let dragSrc = null;
+
+function dragStart(e) { dragSrc = e.currentTarget; e.currentTarget.classList.add('dragging'); }
+function dragOver(e)  { e.preventDefault(); }
+function dropItem(e)  {
+  e.preventDefault();
+  const target = e.currentTarget;
+  if (dragSrc === target) { dragSrc.classList.remove('dragging'); return; }
+  const list = document.getElementById('tlSortList');
+  const items = [...list.children];
+  const si = items.indexOf(dragSrc), ti = items.indexOf(target);
+  if (si < ti) list.insertBefore(dragSrc, target.nextSibling);
+  else         list.insertBefore(dragSrc, target);
+  dragSrc.classList.remove('dragging');
+}
+
+function checkTimeline() {
+  const items = [...document.getElementById('tlSortList').children];
+  const orders = items.map(i => parseInt(i.dataset.order));
+  const correct = orders.every((v, i, a) => i === 0 || a[i-1] <= v);
+  const fb = document.getElementById('timelineFeedback');
+  if (correct) {
+    fb.style.background = 'rgba(5,150,105,.2)'; fb.style.border = '1.5px solid #34D399';
+    fb.textContent = '🏆 Perfect! Ai ordonat corect istoria banilor — de la troc la plăți digitale!';
+    completedSections.add('6'); updateProgress(); spawnCoins(5);
+  } else {
+    fb.style.background = 'rgba(220,38,38,.2)'; fb.style.border = '1.5px solid #F87171';
+    fb.textContent = '❌ Hmm, nu e perfect. Gândește-te: ce a apărut mai întâi — monedele sau bancnotele? Încearcă din nou!';
+  }
+  fb.classList.add('show');
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────────────
+const quizFeedbacks = {
+  q1: { correct: '✅ Exact! TROCUL era sistemul de schimb direct, fără bani. Era simplu dar cu multe probleme!', wrong: '❌ Nu chiar. Sistemul se numea TROC — un cuvânt folosit și azi când schimbi lucruri direct cu cineva.' },
+  q2: { correct: '✅ Corect! Trebuia să găsești exact persoana potrivită, iar mâncarea se strica. Deci nu puteai nici economisi!', wrong: '❌ Nu tocmai. Cea mai mare problemă era că trebuia să găsești exact omul potrivit și că bunurile se stricau.' },
+  q3: { correct: '✅ Bravo! Primele monede au apărut în Lydia, un regat în actuala Turcie, acum ~2.600 de ani!', wrong: '❌ Nu e corect. Primele monede au apărut în Lydia — un regat pe teritoriul actual al Turciei.' },
+  q4: { correct: '✅ Exact! Salariul vine de la sare (salarium) — soldații romani erau plătiți parțial în sare!', wrong: '❌ Nu chiar. Cuvântul vine din latină — salarium — legat de sare, pentru că aceasta era extrem de valoroasă.' }
+};
+const quizOrder = ['q1','q2','q3','q4'];
+
+function answerQuiz(btn, qId, correct, letter) {
+  const allOpts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  allOpts.forEach(o => o.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+
+  const fb = document.getElementById('fb-' + qId);
+  fb.textContent = correct ? quizFeedbacks[qId].correct : quizFeedbacks[qId].wrong;
+  fb.classList.add('show', correct ? 'correct' : 'wrong');
+
+  if (correct) { quizScore++; spawnCoins(2); }
+  quizAnswers[qId] = correct;
+
+  setTimeout(() => {
+    const idx = quizOrder.indexOf(qId);
+    if (idx < quizOrder.length - 1) {
+      document.getElementById(qId).style.display = 'none';
+      document.getElementById(quizOrder[idx + 1]).style.display = 'block';
+    } else {
+      showQuizResult();
+    }
+  }, 1800);
+}
+
+function showQuizResult() {
+  document.getElementById(quizOrder[quizOrder.length-1]).style.display = 'none';
+  const fin = document.getElementById('quizFinal');
+  fin.style.display = 'block';
+  const msgs = [
+    { icon:'😅', title:'Mai încearcă!', text:`Ai răspuns corect la ${quizScore} din 4 întrebări. Citește lecția din nou și vei reuși!` },
+    { icon:'👍', title:'Bine!', text:`${quizScore} din 4 corecte. Aproape! Recitește secțiunile despre troc și monede.` },
+    { icon:'🌟', title:'Foarte bine!', text:`${quizScore} din 4 corecte! Ești aproape expert în istoria banilor!` },
+    { icon:'🏆', title:'Perfect!', text:`4 din 4 corecte! Ești un adevărat explorator al istoriei banilor! 🎉` }
+  ];
+  const msg = quizScore <= 1 ? msgs[0] : quizScore === 2 ? msgs[1] : quizScore === 3 ? msgs[2] : msgs[3];
+  document.getElementById('quizFinalIcon').textContent = msg.icon;
+  document.getElementById('quizFinalTitle').textContent = msg.title;
+  document.getElementById('quizFinalText').textContent = msg.text;
+  completedSections.add('8'); updateProgress();
+  if (quizScore >= 3) spawnCoins(8);
+}
+
+function showCompletion() {
+  document.getElementById('challengeCard').style.display = 'block';
+  document.getElementById('challengeCard').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+// ── CHALLENGE ─────────────────────────────────────────────────────────────────
+const challengeTexts = {
+  coin:   '🪙 Interesant! Monedele există de 2.600 de ani — sunt rezistente! Dar sunt grele și incomode pentru plăți mari.',
+  card:   '💳 Cardurile sunt foarte populare astăzi, dar deja telefonul le înlocuiește în multe țări din Asia!',
+  phone:  '📱 Mulți experți cred că plata cu telefonul va domina! În China, majoritatea oamenilor nu mai folosesc deloc cash.',
+  crypto: '🔐 Criptomonedele sunt fascinante! Dar sunt volatile și greu de înțeles. Poate fi viitorul, poate nu...'
+};
+
+function voteChallenge(btn, type) {
+  document.querySelectorAll('.ch-opt').forEach(o => { o.classList.remove('selected'); o.disabled = true; });
+  btn.classList.add('selected');
+  const res = document.getElementById('challengeResult');
+  res.style.display = 'block';
+  res.textContent = challengeTexts[type] + ' Nu există un răspuns greșit — viitorul banilor e incert și fascinant!';
+  setTimeout(() => {
+    document.getElementById('completionCard').classList.add('show');
+    document.getElementById('completionCard').scrollIntoView({ behavior:'smooth', block:'center' });
+    spawnCoins(10);
+  }, 1200);
+}
+
+// ── COINS ─────────────────────────────────────────────────────────────────────
+function spawnCoins(n) {
+  const container = document.getElementById('coinFall');
+  const coins = ['🪙','💰','⭐','✨'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'coin';
+      el.textContent = coins[Math.floor(Math.random() * coins.length)];
+      el.style.left = Math.random() * 95 + '%';
+      el.style.animationDelay = Math.random() * .4 + 's';
+      el.style.fontSize = (1 + Math.random()) + 'rem';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 1400);
+    }, i * 80);
+  }
+}
+
+function goNextLesson() {
+  window.location.href = 'lectia2.html';
+}
+</script>
+</body>
+</html>
